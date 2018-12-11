@@ -195,14 +195,4 @@ class LaneNet(nn.Module):
 		return x
 
 
-'''H-Net'''
-
-class HNet(nn.Module):
-
-	def __init__(self):
-		super(HNet).__init__()
-
-
-	def forward(self):
-		pass
 		
