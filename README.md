@@ -18,4 +18,8 @@
     |----logs/
     |------|------models/:用于训练中模型及参数的保存
     |------|------loggings/:保存训练日志
+    |
+    |----data/
+    |------|------cluster/:包含用于聚类的ground-truth数据
+    |------|------train_binary/:包含用于车道线语意分割的ground-truth数据
 

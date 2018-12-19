@@ -1,3 +1,77 @@
 import torch
 import numpy as np 
-import 
+import os
+from collections import defaultdict
+import torch.nn as nn
+
+###计算不同类的权重
+def enet_weighing(data):
+	frequency=defaultdict(lambda:0)
+	images=os.listdir(data)
+	for img in images:
+		img_array=cv2.imread(img)
+		frequency['background']+=(img==0).sum()
+		frequency['lane']+=(img==255).sum()
+	class_weights=defaultdict(lambda:0)
+	class_weights['background']=1/np.log(1.02+frequency['background']/(frequency['background']+frequency['lane']))
+	class_weights['lane']=1/np.log(1.02+frequency['lane']/(frequency['background']+frequency['lane']))
+	return class_weights
+
+###语意分割损失函数
+def Segmentation_loss(inputs,label,class_weights):
+	loss=nn.CrossEntropyLoss(inputs,label,weight=torch.tensor((class_weights['lane'],class_weights['background'])))
+    return loss	
+	
+####聚类损失函数
+##[255,205,155,105,55]
+def variance(delta_v,embeddings,labels):
+	vals=[255,205,155,105,55]
+	num_samples=labels.size(0)
+	var_loss=torch.tensor(0.)
+	for i in range(num_samples):
+		sample_embedding=embeddings[i,:,:,:]
+		sample_label=labels[i,0,:,:]
+		num_clusters=len(sample_label.unique())-1
+		sample_label=sample_label.view(sample_label.size(0)*sample_label.size(1))
+		sample_embedding=sample_embedding.view(-1,sample_embedding.size(1)*sample_embedding.size(2))
+		loss=torch.tensor(0.)
+		for j in range(num_clusters):
+			indices=(sample_label==vals[j]).nonzero()
+			cluster_elements=torch.index_select(sample_embedding,1,indices)
+			Nc=cluster_elements.size(1)
+			mean_cluster=cluster_elements.mean(dim=1)
+			distance=torch.sqrt(torch.sum(torch.pow(cluster_elements-mean_cluster,2)))
+			loss+=(torch.pow(torch.clamp(distance-delta_v,min=0.),2).sum())/Nc
+		var_loss+=loss/num_clusters
+	return var_loss/num_samples
+
+def distance(delta_d,embeddings,labels):
+	vals=[255,205,155,105,55]
+	num_samples=labels.size(0)
+    dis_loss=torch.tensor(0.)
+	for i in range(num_samples):
+		clusters=[]
+		sample_embedding=embeddings[i,:,:,:]
+		sample_label=labels[i,0,:,:]
+		num_clusters=len(sample_label.unique())-1
+		sample_label=sample_label.view(sample_label.size(0)*sample_label.size(1))
+		sample_embedding=sample_embedding.view(-1,sample_embedding.size(1)*sample_embedding.size(2))
+		loss=torch.tensor(0.)
+		for j in range(num_clusters):
+			indices=(sample_label==vals[j]).nonzero()
+			cluster_elements=torch.index_select(sample_embedding,1,indices)
+			mean_cluster=cluster_elements.mean(dim=1)
+			if clusters:
+				for k in clusters:
+					loss+=torch.clamp(delta_d-torch.sqrt(torch.pow(mean_cluster-k,2).sum()),min=0.)
+					clusters.append(mean_cluster)
+		dis_loss+=loss/(num_clusters*(num_clusters-1))
+	return dis_loss
+
+###正则化
+def regularization():
+	pass
+
+###损失函数用于车道线拟合
+def Hnet_loss():
+	pass

@@ -26,7 +26,7 @@ class Bottleneck(nn.Module):
 	def __init__(self,input_c,output_c,P,Type='downsampling',pool_size=128,ratio=2):
 		super(Bottleneck).__init__()
 		self.Type=Type
-		if Type=='downsampling':
+		if self.Type=='downsampling':
 		    self.net=nn.ModuleDict({'block1':nn.Sequential(nn.Conv2d(input_c,output_c,ratio,stride=ratio),
 		    	                                           nn.PReLu(),
 		    	                                           nn.BatchNorm2d(output_c)),
@@ -39,7 +39,7 @@ class Bottleneck(nn.Module):
 		    	                    'dropout':nn.Dropout2d(p=P),
 		    	                    'Pooling':nn.AdaptiveMaxPool2d(pool_size)})
 
-		elif Type.split()[0]=='asymmetric':
+		elif self.Type.split()[0]=='asymmetric':
 			self.net=nn.ModuleDict({'block1':nn.Sequential(nn.Conv2d(input_c,input_c/ratio,1),
 				                                           nn.PReLu(),
 				                                           nn.BatchNorm2d(input_c/ratio)),
@@ -52,7 +52,7 @@ class Bottleneck(nn.Module):
 				                                           nn.BatchNorm2d(output_c)),
 				                    'dropout':nn.Dropout2d(p=P)})
 
-		elif Type.split()[0]=='dilated':
+		elif self.Type.split()[0]=='dilated':
 			self.net=nn.ModuleDict({'block1':nn.Sequential(nn.Conv2d(input_c,input_c/ratio,1),
 				                                           nn.PReLu(),
 				                                           nn.BatchNorm2d(input_c/ratio)),
@@ -63,7 +63,7 @@ class Bottleneck(nn.Module):
 				                                           nn.PReLu(),
 				                                           nn.BatchNorm2d(output_c)),
 				                    'dropout':nn.Dropout2d(p=P)})
-		elif Type=='normal':
+		elif self.Type=='normal':
 			self.net=nn.ModuleDict({'block1':nn.Sequential(nn.Conv2d(input_c,input_c/ratio,1),
 				                                           nn.PReLu(),
 				                                           nn.BatchNorm2d(input_c/ratio)),
@@ -74,7 +74,7 @@ class Bottleneck(nn.Module):
 				                                           nn.PReLu(),
 				                                           nn.BatchNorm2d(output_c)),
 				                    'dropout':nn.Dropout2d(p=P)})
-		elif Type='upsampling':
+		elif self.Type='upsampling':
 			self.net=nn.ModuleDict({'block1':nn.Sequential(nn.Conv2d(input_c,input_c/ratio,1),
 				                                           nn.PReLu(),
 				                                           nn.BatchNorm2d(input_c/ratio)),
@@ -94,13 +94,11 @@ class Bottleneck(nn.Module):
 			x=self.net['block3'](x)
 			x=self.net['dropout'](x)
 
-
 			y=self.net['Pooling'](y)
 			zero_pads=torch.zeros(x.size[0],x.size[1]-y.size[1],x.size[ratio],x.size[3])
 			y=torch.cat([y,zero_pads],dim=1)
 			return x+y 
 		else:
-
 			x=self.net['block1'](x)
 			x=self.net['block2'](x)
 			x=self.net['block3'](x)
@@ -173,7 +171,7 @@ class Segmentation(nn.Module):
 	def __init__(self):
 		super(Segmentation).__init__()
 		self.net=nn.Sequential(RepeatBlock(128,128),
-                               Decoder(128,2))
+                               Decoder(128,1))
 
 	def forward(self,x):
 		return self.net(x)
@@ -185,14 +183,14 @@ class LaneNet(nn.Module):
 	def __init__(self):
 		super(LaneNet).__init__()
 		self.net=nn.ModuleDict({'Shared_Encoder':SharedEnocer(),
-			                    'Embedding':Embedding(),
+			                    'Embedding':Embedding(4),
 			                    'Segmentation':Segmentation()})
 		
 	def forward(self,x):
 		x=self.net['Shared_Encoder'](x)
-		x=self.net['Embedding'](x)
-		x=self.net['Segmentation'](x)
-		return x
+		x1=self.net['Embedding'](x)
+		x2=self.net['Segmentation'](x)
+		return x1,x2
 
 
 		
