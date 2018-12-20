@@ -56,18 +56,16 @@ class create_tusimple_data():
                 cv2.imwrite(os.path.join('./data/cluster',new_name),img_cluster)
 
 
-
-
 class Rescale():
 
     def __init__(self,output_size,method):
-
         self.size=output_size
+        self.method=method
 
     def __call__(self,sample):
-        pass
-
-
+        return cv2.resize(sample,self.size,interpolation=self.method)
+        
+        
 if __name__=='__main__':
 
     creator=create_tusimple_data(TUSIMPLE_PATH,5)
