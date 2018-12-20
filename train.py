@@ -8,6 +8,10 @@ from loss import Segmentation_loss,Clustering_loss,Hnet_loss
 
 
 
+def train_monitor(func):
+    pass
+    
+@train_monitor
 def train(model,epoch,batch_size,lr,optimizer,device):
     pass
 
