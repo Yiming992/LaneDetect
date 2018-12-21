@@ -33,7 +33,7 @@ class create_tusimple_data():
                 width=entry['lanes']
                 clip=entry['raw_file']
                 img=cv2.imread(os.path.join(self.tusimple,clip))
-                cv2.imwrite(os.path.join('./data/LaneImages',clip.split('/')[1:]),img)
+                cv2.imwrite(os.path.join('./data/LaneImages','_'.join(clip.split('/')[1:])),img)
                 img=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
                 img_binary=np.zeros_like(img)
                 img_cluster=np.zeros_like(img)
@@ -58,7 +58,7 @@ class create_tusimple_data():
 
 class Rescale():
 
-    def __init__(self,output_size,method):
+    def __init__(self,output_size,method='CV_INTER_AREA'):
         self.size=output_size
         self.method=method
 
