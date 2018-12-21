@@ -8,7 +8,7 @@ from loss import Segmentation_loss,Clustering_loss,Hnet_loss
 
 
 
-def train_monitor(func,num_samples,epochs,batch,lr=3e-5,optimizer='Adam',mode='GPU'):
+def train_monitor(func,data,epochs,batch,lr=3e-5,optimizer='Adam',mode='GPU'):
 
     def wrapper():
         for epoch in range(epochs):
