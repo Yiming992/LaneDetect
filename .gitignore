@@ -1,7 +1,10 @@
 
-
+.vscode/
 *.pyc
-./data/
+data/train_binary/
+data/cluster/
+data/
+train_set/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

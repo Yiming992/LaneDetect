@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 import cv2
 import torch
 
-TUSIMPLE_PATH='../train_set'
+TUSIMPLE_PATH='./train_set'
 
 ##标注并结构化图森数据集
 class create_tusimple_data():
@@ -20,8 +20,8 @@ class create_tusimple_data():
             os.mkdir('./data/train_binary')
         if not os.path.exists('./data/cluster'):
             os.mkdir('./data/cluster')
-        if not os.path.exists('./data/train'):
-            os.mkdir('./data/train')
+        if not os.path.exists('./data/LaneImages'):
+            os.mkdir('./data/LaneImages')
         jsons=[json for json in os.listdir(self.tusimple) if json.split('.')[-1]=='json']
         for j in jsons:
             data=[]
@@ -33,7 +33,7 @@ class create_tusimple_data():
                 width=entry['lanes']
                 clip=entry['raw_file']
                 img=cv2.imread(os.path.join(self.tusimple,clip))
-                cv2.imwrite(os.path.join('./data/train',clip),img)
+                cv2.imwrite(os.path.join('./data/LaneImages',clip.split('/')[1:]),img)
                 img=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
                 img_binary=np.zeros_like(img)
                 img_cluster=np.zeros_like(img)
