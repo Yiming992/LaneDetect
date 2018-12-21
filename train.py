@@ -1,22 +1,35 @@
 import argparse
 import numpy as np 
 import torch 
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader,SubsetRandomSampler
 from Data import Tusimple_data,Rescale
 from model import LaneNet
 from HNet import HNet
 from loss import Segmentation_loss,Clustering_loss,Hnet_loss
 
+Transform=transforms.Compose([Rescale()])
+sampler=SubsetRandomSampler()
 
+dataset_size=len(os.listdir(os.path.join('./data','LaneImages')))
+indices=list(range(dataset))
+split=dataset_size*.8
+np.random.shuffle(indices)
+train_indices,test_indices=indices[:split],indices[split:]
 
-def train_monitor(func,data,epochs,batch,lr=3e-5,optimizer='Adam',mode='GPU'):
+train_sampler=SubSetRandomSampler(train_indices)
+test_sampler=SubSetRandomSampler(test_indices)
 
+train_loader=DataLoader(Tusimple_data,)
+test_loader=DataLoader()
+
+def train_monitor(func,data,epochs,batch,
+                  lr=3e-5,optimizer='Adam',mode='GPU'):
     def wrapper():
         for epoch in range(epochs):
     pass
 
 @train_monitor
-def train(model,epoch,batch_size,lr,optimizer,device):
+def train(model,epoch,batch,lr,optimizer,device):
     pass
 
 
