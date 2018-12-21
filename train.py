@@ -1,7 +1,8 @@
 import argparse
 import numpy as np 
 import torch 
-from torch.utils.data import Dataset,DataLoader
+from torch.utils.data import DataLoader
+from Data import Tusimple_data,Rescale
 from model import LaneNet
 from HNet import HNet
 from loss import Segmentation_loss,Clustering_loss,Hnet_loss
