@@ -14,7 +14,6 @@ class Rescale():
 
 class Tusimple_data(Dataset):
 
-##root dir:'./data'-train_binary-cluster-LaneImages
     def __init__(self,root_dir,transform=None):
         super(Tusimple_data).__init__()
         self.root_dir=root_dir

@@ -12,8 +12,6 @@ def train_monitor(func,data,epochs,batch,lr=3e-5,optimizer='Adam',mode='GPU'):
 
     def wrapper():
         for epoch in range(epochs):
-            
-
     pass
 
 @train_monitor
