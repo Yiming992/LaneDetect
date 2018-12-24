@@ -15,6 +15,12 @@
     |
     |----train.py:脚本用于模型训练
     |
+    |----Data.py：包含Pytorch Dataset对象的定义
+    |
+    |----make_predictions.py:用于模型预测
+    |
+    |----clustering.py:包括各类聚类算法
+    |
     |----logs/
     |------|------models/:用于训练中模型及参数的保存
     |------|------loggings/:保存训练日志
@@ -22,4 +28,5 @@
     |----data/
     |------|------cluster/:包含用于聚类的ground-truth数据
     |------|------train_binary/:包含用于车道线语意分割的ground-truth数据
+    |------|------LaneImages/:包含相机拍摄的原始RGB数据
 
