@@ -6,7 +6,7 @@ import cv2
 import torch
 
 TUSIMPLE_PATH='./train_set'
-
+ 
 ##标注并结构化图森数据集
 class create_tusimple_data():
 
@@ -51,7 +51,7 @@ class create_tusimple_data():
                                 queue.pop()
                 new_name='_'.join(clip.split('/')[1:])
                 new_name='.'.join([new_name.split('.')[0],'png'])
-
+  
                 cv2.imwrite(os.path.join('./data/train_binary',new_name),img_binary)
                 cv2.imwrite(os.path.join('./data/cluster',new_name),img_cluster)
 

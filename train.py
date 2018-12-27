@@ -19,14 +19,21 @@ train_indices,test_indices=indices[:split],indices[split:]
 train_sampler=SubSetRandomSampler(train_indices)
 test_sampler=SubSetRandomSampler(test_indices)
 
-train_loader=DataLoader(Tusimple_data,)
-test_loader=DataLoader()
+train_loader=DataLoader(Tusimple_data,sampler=train_sampler)
+test_loader=DataLoader(Tusimple_data,sampler=test_sampler)
 
+##data={'input_data','binary_mask','instance_mask'}
 def train_monitor(func,data,epochs,batch,
                   lr=3e-5,optimizer='Adam',mode='GPU'):
     def wrapper():
         for epoch in range(epochs):
-    pass
+            if mode=='GPU':
+                device=torch.device('cuda' if torch.cuda.is_available())
+                LR=lr
+                if optimizer=='Adam':
+                    optimizer=torch.optim.Adam() 
+            for batch
+    return wrapper
 
 @train_monitor
 def train(model,epoch,batch,lr,optimizer,device):
@@ -49,3 +56,4 @@ if __name__=='__main__':
 
     LaneNet=LaneNet()
     device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    data[]
