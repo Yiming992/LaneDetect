@@ -23,7 +23,7 @@ train_loader=DataLoader(Tusimple_data,sampler=train_sampler)
 test_loader=DataLoader(Tusimple_data,sampler=test_sampler)
 
 ##data={'input_data','binary_mask','instance_mask'}
-def train_monitor(func,data,epochs,batch,
+def train_monitor(func,dataset,epochs,batch,
                   lr=3e-5,optimizer='Adam',mode='GPU'):
     def wrapper():
         for epoch in range(epochs):
@@ -31,8 +31,9 @@ def train_monitor(func,data,epochs,batch,
                 device=torch.device('cuda' if torch.cuda.is_available())
                 LR=lr
                 if optimizer=='Adam':
-                    optimizer=torch.optim.Adam() 
-            for batch
+                    optimizer=torch.optim.Adam()           
+            num_batches=train_data 
+            for batch in 
     return wrapper
 
 @train_monitor
@@ -41,7 +42,7 @@ def train(model,epoch,batch,lr,optimizer,device):
 
 
 if __name__=='__main__':
-    ap=argparse.ArgumentParser()
+    ap=argparse.ArgumentParser() 
  
     ap.add_argument('-e','--epoch',required=True,default=10)#Epoch
     ap.add_argument('-b','--batch',required=True,default=4)#Batch_size

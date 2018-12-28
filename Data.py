@@ -28,15 +28,14 @@ class Tusimple_data(Dataset):
         return len(os.listdir(os.path.join(self.root_dir,'LaneImages')))
     
     def __getitem__(self,index):
-        lane_image=cv2.imread(os.path.join(self.root_dir,'LaneImages',name_map+'.jpg'))
-        binary_label=cv2.imread(os.path.join(self.root_dir,'train_binary',name_map+'.png'))
-        instance_label=cv2.imread(os.path.join(self.root_dir,'cluster',name_map+'.png'))
+        lane_image=cv2.imread(os.path.join(self.root_dir,'LaneImages',self.name_map[index]+'.jpg'),CV2.IMREAD_UNCHANGED)
+        binary_label=cv2.imread(os.path.join(self.root_dir,'train_binary',self.name_map[index]+'.png'),CV2.IMREAD_UNCHANGED)
+        instance_label=cv2.imread(os.path.join(self.root_dir,'cluster',self.name_map[index]+'.png'),CV2.IMREAD_UNCHANGED)
 
         if self.transform:
             lane_image=self.transform(lane_image)
             binary_label=self.transform(binary_label)
             instance_label=self.transform(instance_label)
-
         return lane_image,binary_label,instance_label
  
 class New_Data(Dataset):
