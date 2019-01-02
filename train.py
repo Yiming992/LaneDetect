@@ -10,6 +10,15 @@ from loss import Segmentation_loss,Clustering_loss,Hnet_loss
 Transform=transforms.Compose([Rescale()])
 sampler=SubsetRandomSampler()
 
+
+def split_dataset():
+    s
+
+
+
+
+
+
 dataset_size=len(os.listdir(os.path.join('./data','LaneImages')))
 indices=list(range(dataset))
 split=dataset_size*.8
