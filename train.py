@@ -1,4 +1,5 @@
 import argparse
+import shuffle
 import numpy as np 
 import torch 
 from torch.utils.data import DataLoader,SubsetRandomSampler
@@ -7,34 +8,31 @@ from model import LaneNet
 from HNet import HNet
 from loss import Segmentation_loss,Clustering_loss,Hnet_loss
 
-Transform=transforms.Compose([Rescale()])
-sampler=SubsetRandomSampler()
+Transform=transforms.Compose([Rescale((512,256))])
 
+def split_dataset(test_ratio=0.2):
+    dataset_size=len(os.listdir(os.path.join('./data','LaneImages')))
+    indices=list(range(dataset_size))
+    split=dataset_size*test_ratio
+    random.shuffle(indices)
+    train_indices=indices[split:]
+    test_indices=indices[:split]
 
-def split_dataset():
-    s
+    return train_indices,test_indices
 
+def build_sampler(data,train_index,test_index):
+    train_sampler=SubSetRandomSampler(train_indices)
+    test_sampler=SubSetRandomSampler(test_indices)
 
+    train_loader=DataLoader(data,sampler=train_sampler)
+    test_loader=DataLoader(data,sampler=test_sampler)
 
-
-
-
-dataset_size=len(os.listdir(os.path.join('./data','LaneImages')))
-indices=list(range(dataset))
-split=dataset_size*.8
-np.random.shuffle(indices)
-train_indices,test_indices=indices[:split],indices[split:]
-
-train_sampler=SubSetRandomSampler(train_indices)
-test_sampler=SubSetRandomSampler(test_indices)
-
-train_loader=DataLoader(Tusimple_data,sampler=train_sampler)
-test_loader=DataLoader(Tusimple_data,sampler=test_sampler)
+    return train_loader,test_loader
 
 ##data={'input_data','binary_mask','instance_mask'}
-def train_monitor(func,dataset,epochs,batch,
-                  lr=3e-5,optimizer='Adam',mode='GPU'):
-    def wrapper():
+def train_monitor():
+    # *args: epoch, batch,
+    def wrapper(*args,**kwargs):
         for epoch in range(epochs):
             if mode=='GPU':
                 device=torch.device('cuda' if torch.cuda.is_available())
@@ -42,11 +40,11 @@ def train_monitor(func,dataset,epochs,batch,
                 if optimizer=='Adam':
                     optimizer=torch.optim.Adam()           
             num_batches=train_data 
-            for batch in 
+            for batch in   
     return wrapper
 
 @train_monitor
-def train(model,epoch,batch,lr,optimizer,device):
+def train(data,epoch,batch,lr=3e-5,optimizer='Adam',mode='GPU'):
     pass
 
 
@@ -63,7 +61,7 @@ if __name__=='__main__':
 
     args=vars(ap.parse_args())
 
-
+    
     LaneNet=LaneNet()
     device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     data[]
