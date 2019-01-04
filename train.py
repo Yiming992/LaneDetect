@@ -19,14 +19,24 @@ train_indices,test_indices=indices[:split],indices[split:]
 train_sampler=SubSetRandomSampler(train_indices)
 test_sampler=SubSetRandomSampler(test_indices)
 
-train_loader=DataLoader(Tusimple_data,)
-test_loader=DataLoader()
+train_loader=DataLoader(Tusimple_data,sampler=train_sampler)
+test_loader=DataLoader(Tusimple_data,sampler=test_sampler)
 
-def train_monitor(func,data,epochs,batch,
-                  lr=3e-5,optimizer='Adam',mode='GPU'):
+
+def dataset_subset()
+
+##data={'input_data','binary_mask','instance_mask'}
+def train_monitor(func,data,epoch,batch,
+                  lr=3e-5,optimizer='Adam',device='GPU'):
     def wrapper():
         for epoch in range(epochs):
-    pass
+            if mode=='GPU':
+                device=torch.device('cuda' if torch.cuda.is_available())
+                LR=lr
+                if optimizer=='Adam':
+                    optimizer=torch.optim.Adam() 
+            for batch
+    return wrapper
 
 @train_monitor
 def train(model,epoch,batch,lr,optimizer,device):
@@ -42,6 +52,7 @@ if __name__=='__main__':
     ap.add_argument('-dd','--delta_d',required=True,default=1)#delta_d
     ap.add_argument('-l','--learning_rate',required=True,default=3e-5)#learning_rate
     ap.add_argument('-o','--optimizer',required=True,default='Adam')#optimizer
+    ap.add_argument('-d','--device',required=True,default='GPU')
     #
 
     args=vars(ap.parse_args())
@@ -49,3 +60,5 @@ if __name__=='__main__':
 
     LaneNet=LaneNet()
     device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+
