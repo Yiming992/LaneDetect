@@ -18,8 +18,8 @@ def enet_weighing(data):
 	return class_weights
 
 ###语意分割损失函数
-def Segmentation_loss(inputs,label,class_weights):
-	loss=nn.CrossEntropyLoss(inputs,label,weight=torch.tensor((class_weights['lane'],class_weights['background'])))
+def Segmentation_loss(predictions,label,class_weights):
+	loss=nn.CrossEntropyLoss(predictions,label,weight=torch.tensor((class_weights['lane'],class_weights['background'])))
     return loss	
 	
 ####聚类损失函数

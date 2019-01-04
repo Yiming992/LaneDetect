@@ -70,6 +70,8 @@ if __name__=='__main__':
 
     creator=create_tusimple_data(TUSIMPLE_PATH,5)
     creator()
+
+
     
 
 

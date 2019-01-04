@@ -31,6 +31,10 @@ class Tusimple_data(Dataset):
         lane_image=cv2.imread(os.path.join(self.root_dir,'LaneImages',self.name_map[index]+'.jpg'),CV2.IMREAD_UNCHANGED)
         binary_label=cv2.imread(os.path.join(self.root_dir,'train_binary',self.name_map[index]+'.png'),CV2.IMREAD_UNCHANGED)
         instance_label=cv2.imread(os.path.join(self.root_dir,'cluster',self.name_map[index]+'.png'),CV2.IMREAD_UNCHANGED)
+        
+        lane_image=torch.tensor(lane_imag,dtype=torch.float)
+        binary_label=torch.tensor(binary_label,dtype=torch.float)
+        instance_label=torch.tensor(instance_label,dtype=torch.float)
 
         if self.transform:
             lane_image=self.transform(lane_image)
