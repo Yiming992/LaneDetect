@@ -91,14 +91,15 @@ if __name__=='__main__':
     ap.add_argument('-d','--device',required=True,default='GPU')#training device
     ap.add_argument('t','--test_ratio',required=True,default=.2)
     ap.add_argument('cl','class_weight',required=True,default)
-    ap.add_argument()
-    ap.add_argument()
+    #ap.add_argument()
+    #ap.add_argument()
     #
 
     args=vars(ap.parse_args())
     
     train_indices,test_indices=split_dataset(args['test_ratio'])
-    train_sampler,test_sampler=build_sampler(args[])
+    train_sampler,test_sampler=build_sampler(Tusimple_data,args['batch'],1,
+                                             train_indices,test_indices)
 
     model=LaneNet()
 
