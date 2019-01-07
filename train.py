@@ -66,11 +66,8 @@ def train(model,data,epoch,batch,lr=3e-5,optimizer='Adam',mode='GPU',
             
             log.write('Steps:{},Loss:{}'.format(batch_id*(e_p+1),total_loss))
             log.flush()
-
             optimizer.zero_grad()
-
             total_loss.backward()
-
             optimizer.step()
 
     torch.save(model,os.path.join('./logs/models','model_{}.pkl'.format(start_time)))
@@ -100,7 +97,7 @@ if __name__=='__main__':
     train_indices,test_indices=split_dataset(args['test_ratio'])
     train_sampler,test_sampler=build_sampler(Tusimple_data,args['batch'],1,
                                              train_indices,test_indices)
-
+    
     model=LaneNet()
 
     train(model,train_sampler,args['epoch'],args['batch'],args['learning_rate'],
