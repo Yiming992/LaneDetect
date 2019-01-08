@@ -5,7 +5,7 @@ import numpy as np
 class ConvBlock(nn.Module):
     
     def __init__(self,input_c,output_c,size,stride=3,padding=0):
-        super(ConvBlock).__init__()
+        super(ConvBlock,self).__init__()
         self.net=nn.Sequential(nn.Conv2d(input_c,output_c,size,stride=stride,padding=padding),
                                nn.BtachNorm2d(output_c),
                                nn.ReLu())
@@ -15,7 +15,7 @@ class ConvBlock(nn.Module):
 class LinearBlock(nn.Module):
 
     def __init__(self,input_c,output_c):
-        super(LinearBlock).__init__()
+        super(LinearBlock,self).__init__()
         self.net=nn.Sequential(nn.Linear(input_c,output_c),
                                nn.BatchNorm2d(output_c),
                                nn.ReLu()) 
@@ -26,7 +26,7 @@ class LinearBlock(nn.Module):
 class HNet(nn.Module):
 
 	def __init__(self):
-		super(HNet).__init__()
+		super(HNet,self).__init__()
 		self.conv=nn.Sequential(ConvBlock(3,16,3),
 			                    ConvBlock(16,16,3),
                                 nn.AdaptiveMaxpool2d([64,32]),

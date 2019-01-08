@@ -123,7 +123,7 @@ class RepeatBlock(nn.Sequential):
 class Decoder(nn.Sequential):
 
     def __init__(self,input_c,mid_c,output_c):
-        super(Decoder).__init__()
+        super(Decoder,self).__init__()
         self.add_module('Bottleneck_1',Bottleneck(input_c,mid_c,0.1,Type='upsampling'))
         self.add_module('Bottleneck_2',Bottleneck(mid_c,mid_c,0.1,Type='normal'))
         self.add_module('Bottleneck_3',Bottleneck(mid_c,mid_c,0.1,Type='normal'))
@@ -171,7 +171,7 @@ class Segmentation(nn.Module):
     def __init__(self):
         super(Segmentation,self).__init__()
         self.net=nn.Sequential(RepeatBlock(128,128),
-                               Decoder(128,1))
+                               Decoder(128,64,1))
 
     def forward(self,x):
         return self.net(x)
@@ -192,7 +192,7 @@ class LaneNet(nn.Module):
         x2=self.net['Segmentation'](x)
         return x1,x2
 
-
+        
 if __name__=='__main__':
 
     model=LaneNet()

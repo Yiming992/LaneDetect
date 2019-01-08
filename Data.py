@@ -15,7 +15,7 @@ class Rescale():
 class Tusimple_data(Dataset):
 
     def __init__(self,root_dir,transform=None):
-        super(Tusimple_data).__init__()
+        super(Tusimple_data,self).__init__()
         self.root_dir=root_dir
         self.transform=transform
         file_names=os.listdir(os.path.join(self.root_dir))
