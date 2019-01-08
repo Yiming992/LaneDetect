@@ -128,7 +128,7 @@ class Decoder(nn.Sequential):
         self.add_module('Bottleneck_2',Bottleneck(mid_c,mid_c,0.1,Type='normal'))
         self.add_module('Bottleneck_3',Bottleneck(mid_c,mid_c,0.1,Type='normal'))
         self.add_module('Bottleneck_4',Bottleneck(mid_c,output_c,0.1,Type='upsampling'))
-        self.add_module('Bottleneck_5',Bottleneck(output_c,output_c,0.1,Type='normal'))
+        #self.add_module('Bottleneck_5',Bottleneck(output_c,output_c,0.1,Type='normal'))
 
 
 '''Shared Encoder'''
@@ -192,7 +192,7 @@ class LaneNet(nn.Module):
         x2=self.net['Segmentation'](x)
         return x1,x2
 
-        
+
 if __name__=='__main__':
 
     model=LaneNet()
