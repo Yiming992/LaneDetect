@@ -5,6 +5,7 @@ data/train_binary/
 data/cluster/
 data/
 train_set/
+logs/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

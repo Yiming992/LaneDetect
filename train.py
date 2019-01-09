@@ -27,7 +27,7 @@ def build_sampler(data,train_batch_size,test_batch_size,train_index,test_index):
     test_sampler=SubsetRandomSampler(test_index)
     train_loader=DataLoader(data,batch_size=train_batch_size,sampler=train_sampler)
     test_loader=DataLoader(data,batch_size=test_batch_size,sampler=test_sampler)
-    return train_loader,test_loader
+    return {'train':train_loader,'test':test_loader}
 
 def compute_loss(predictions,embeddings,seg_mask,instance_mask,
                  class_weight,delta_v,delta_d):
@@ -92,13 +92,13 @@ if __name__=='__main__':
     args=vars(ap.parse_args())
     
     train_indices,test_indices=split_dataset(args['test_ratio'])
-    train_sampler,test_sampler=build_sampler(TusimpleData('./data',transform=Rescale((512,256))),
+    data=build_sampler(TusimpleData('./data',transform=Rescale((512,256))),
                                              args['batch'],1,
                                              train_indices,test_indices)
     
     model=LaneNet()
 
-    train(model,train_sampler,args['epoch'],args['batch'],args['learning_rate'],
+    train(model,data,args['epoch'],args['batch'],args['learning_rate'],
           args['optimizer'],args['device'],args['class_weight'],args['delta_v'],
           args['delta_d'])
 
