@@ -2,8 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 
-class ConvBlock(nn.Module):
-    
+class ConvBlock(nn.Module):   
     def __init__(self,input_c,output_c,size,stride=3,padding=0):
         super(ConvBlock,self).__init__()
         self.net=nn.Sequential(nn.Conv2d(input_c,output_c,size,stride=stride,padding=padding),
@@ -13,7 +12,6 @@ class ConvBlock(nn.Module):
         return self.net(x)
 
 class LinearBlock(nn.Module):
-
     def __init__(self,input_c,output_c):
         super(LinearBlock,self).__init__()
         self.net=nn.Sequential(nn.Linear(input_c,output_c),
@@ -24,7 +22,6 @@ class LinearBlock(nn.Module):
 
 
 class HNet(nn.Module):
-
     def __init__(self):
         super(HNet,self).__init__()
         self.conv=nn.Sequential(ConvBlock(3,16,3),

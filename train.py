@@ -23,8 +23,8 @@ def split_dataset(test_ratio=0.2):
     return train_indices,test_indices
 
 def build_sampler(data,train_batch_size,test_batch_size,train_index,test_index):
-    train_sampler=SubSetRandomSampler(train_indices)
-    test_sampler=SubSetRandomSampler(test_indices)
+    train_sampler=SubsetRandomSampler(train_index)
+    test_sampler=SubsetRandomSampler(test_index)
     train_loader=DataLoader(data,batch_size=train_batch_size,sampler=train_sampler)
     test_loader=DataLoader(data,batch_size=test_batch_size,sampler=test_sampler)
     return train_loader,test_loader

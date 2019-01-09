@@ -7,7 +7,6 @@ import numpy as np
 import cv2
 
 class Initial(nn.Module):
-
     def __init__(self):
         super(Initial,self).__init__()
         self.net=nn.ModuleList([nn.Sequential(nn.Conv2d(3,13,3,stride=2,padding=1),
@@ -22,7 +21,6 @@ class Initial(nn.Module):
         return torch.cat([x,y],dim=1)
 
 class Bottleneck(nn.Module):
-
     def __init__(self,input_c,output_c,P,Type='downsampling',pool_size=128,ratio=2):
         super(Bottleneck,self).__init__()
         self.Type=Type
@@ -97,6 +95,7 @@ class Bottleneck(nn.Module):
             y=self.net['Pooling'](y)
             zero_pads=torch.zeros(x.size[0],x.size[1]-y.size[1],x.size[ratio],x.size[3])
             y=torch.cat([y,zero_pads],dim=1)
+            
             return x+y 
         else:
             x=self.net['block1'](x)
@@ -108,7 +107,6 @@ class Bottleneck(nn.Module):
 
 '''Repeat Block'''
 class RepeatBlock(nn.Sequential):
-
     def __init__(self,input_c,output_c):
         super(RepeatBlock,self).__init__()
         self.add_module('Bottleneck_1',Bottleneck(input_c,output_c,0.1,Type='Normal'))
@@ -120,8 +118,8 @@ class RepeatBlock(nn.Sequential):
         self.add_module('Bottleneck_7',Bottleneck(output_c,output_c,0.1,Type='asymmetric'))
         self.add_module('Bottleneck_8',Bottleneck(output_c,output_c,0.1,Type='dilated 16'))
 
-class Decoder(nn.Sequential):
 
+class Decoder(nn.Sequential):
     def __init__(self,input_c,mid_c,output_c):
         super(Decoder,self).__init__()
         self.add_module('Bottleneck_1',Bottleneck(input_c,mid_c,0.1,Type='upsampling'))
@@ -133,7 +131,6 @@ class Decoder(nn.Sequential):
 
 '''Shared Encoder'''
 class SharedEncoder(nn.Module):
-
     def __init__(self):
         super(SharedEncoder,self).__init__()
         self.initial=Initial()
@@ -146,7 +143,6 @@ class SharedEncoder(nn.Module):
                                )
         self.tail=RepeatBlock(128,128)
 
-    
     def forward(self,x):
         x=self.initial(x)
         x=self.net(x)
@@ -154,20 +150,17 @@ class SharedEncoder(nn.Module):
         return x
         
 '''Embedding'''
-class Embedding(nn.Module):
-    
+class Embedding(nn.Module):  
     def __init__(self,embed_size):
         super(Embedding,self).__init__()
         self.net=nn.Sequential(RepeatBlock(128,128),
                                Decoder(128,64,embed_size))
         
-
     def forward(self,x):
         return self.net(x)
 
 '''Segmentation'''
-class Segmentation(nn.Module):
-    
+class Segmentation(nn.Module):   
     def __init__(self):
         super(Segmentation,self).__init__()
         self.net=nn.Sequential(RepeatBlock(128,128),
@@ -179,7 +172,6 @@ class Segmentation(nn.Module):
 
 '''LaneNet'''
 class LaneNet(nn.Module):
-
     def __init__(self):
         super(LaneNet,self).__init__()
         self.net=nn.ModuleDict({'Shared_Encoder':SharedEncoder(),
@@ -199,7 +191,17 @@ if __name__=='__main__':
     from train import split_dataset,build_sampler
     
     train_indices,test_indices=split_dataset()
-    print(train_indices)
+    
+    from Data import TusimpleData,Rescale
+   
+    train_sampler,test_sampler=build_sampler(TusimpleData('./data',transform=Rescale((512,256))),16,1,
+                                            train_indices,test_indices)
+
+    for batch_id,batch in enumerate(train_sampler):
+        print(batch_id)
+        print(batch)
+        
+    
 
 
         
