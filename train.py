@@ -6,7 +6,7 @@ from Data import TusimpleData,Rescale
 from model import LaneNet
 from HNet import HNet
 from loss import Segmentation_loss,variance,distance
-import datetime
+import time
 from torchvision import transforms
 import os
 import random
@@ -33,21 +33,25 @@ def compute_loss(predictions,embeddings,seg_mask,instance_mask,
                  class_weight,delta_v,delta_d):
     seg_loss=Segmentation_loss(predictions,seg_mask,class_weight)
     variance=variance(delta_v,embeddings,instance_mask)
-    distance=distance(delta_b,embeddings,instance_mask)
+    distance=distance(delta_d,embeddings,instance_mask)
     total_loss=seg_loss+.5*variance+.5*distance
     return total_loss
 
 
 def train(model,data,epoch,batch,class_weight,deelta_v,
-          delta_d,lr=3e-5,optimizer='Adam',mode='GPU',):
+          delta_d,lr=3e-5,optimizer='Adam',mode='GPU'):
     if mode=='GPU':
-        device=torch.device('cuda')
+        device=torch.device('cuda',0)
+    else:
+        device=torch.device('cpu',0)
     model.to(device)
     model.train()
     params=model.parameters()
     optimizer=torch.optim.Adam(params,lr=lr)
-    start_time=datetime.datetime.now()
-    log=open('./logs/loggings/LaneNet_{}.txt'.format(start_time),'w')
+    start_time=int(time.time())
+    total_loss=open('./logs/loggings/LaneNet_{}.txt'.format(start_time),'w')
+    #segmentation_loss=open()
+    #instance_loss=open()
     for e_p in range(epoch):
         for batch_id,batch_data in enumerate(data['train']):
             input_data=batch_data[0]
@@ -69,20 +73,18 @@ def train(model,data,epoch,batch,class_weight,deelta_v,
     log.close()
 
             
-
-
 if __name__=='__main__':
     ap=argparse.ArgumentParser() 
  
-    ap.add_argument('-e','--epoch',required=True,default=10)#Epoch
-    ap.add_argument('-b','--batch',required=True,default=4)#Batch_size
-    ap.add_argument('-dv','--delta_v',required=True,default=1)#delta_v
-    ap.add_argument('-dd','--delta_d',required=True,default=1)#delta_d
-    ap.add_argument('-l','--learning_rate',required=True,default=3e-5)#learning_rate
-    ap.add_argument('-o','--optimizer',required=True,default='Adam')#optimizer
-    ap.add_argument('-d','--device',required=True,default='GPU')#training device
-    ap.add_argument('t','--test_ratio',required=True,default=.2)
-    ap.add_argument('cl','class_weight',required=True,default=.5)
+    ap.add_argument('-e','--epoch',default=10)#Epoch
+    ap.add_argument('-b','--batch',default=4)#Batch_size
+    ap.add_argument('-dv','--delta_v',default=1)#delta_v
+    ap.add_argument('-dd','--delta_d',default=1)#delta_d
+    ap.add_argument('-l','--learning_rate',default=3e-5)#learning_rate
+    ap.add_argument('-o','--optimizer',default='Adam')#optimizer
+    ap.add_argument('-d','--device',default='GPU')#training device
+    ap.add_argument('-t','--test_ratio',default=.2)
+    ap.add_argument('-cl','--class_weight',default=.5)
     #ap.add_argument()
     #ap.add_argument()
     #
@@ -90,7 +92,8 @@ if __name__=='__main__':
     args=vars(ap.parse_args())
     
     train_indices,test_indices=split_dataset(args['test_ratio'])
-    train_sampler,test_sampler=build_sampler(Tusimple_data,args['batch'],1,
+    train_sampler,test_sampler=build_sampler(TusimpleData('./data',transform=Rescale((512,256))),
+                                             args['batch'],1,
                                              train_indices,test_indices)
     
     model=LaneNet()

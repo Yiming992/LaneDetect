@@ -5,12 +5,11 @@ import cv2
 import torch 
 
 class Rescale():
-    def __init__(self,output_size,method='CV_INTER_AREA'):
+    def __init__(self,output_size,method='INTER_AREA'):
         self.size=output_size
-        self.method=method
 
     def __call__(self,sample):
-        return cv2.resize(sample,self.size,interpolation=self.method)
+        return cv2.resize(sample,self.size,interpolation=cv2.INTER_AREA)
 
 
 class TusimpleData(Dataset):

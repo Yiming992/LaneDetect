@@ -188,18 +188,7 @@ class LaneNet(nn.Module):
 if __name__=='__main__':
 
     model=LaneNet()
-    from train import split_dataset,build_sampler
-    
-    train_indices,test_indices=split_dataset()
-    
-    from Data import TusimpleData,Rescale
-   
-    train_sampler,test_sampler=build_sampler(TusimpleData('./data',transform=Rescale((512,256))),16,1,
-                                            train_indices,test_indices)
 
-    for batch_id,batch in enumerate(train_sampler):
-        print(batch_id)
-        print(batch)
         
     
 
