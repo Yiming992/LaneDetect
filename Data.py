@@ -12,7 +12,7 @@ class Rescale():
     def __call__(self,sample):
         return cv2.resize(sample,self.size,interpolation=self.method)
 
-class Tusimple_data(Dataset):
+class TusimpleData(Dataset):
 
     def __init__(self,root_dir,transform=None):
         super(Tusimple_data,self).__init__()
@@ -42,7 +42,7 @@ class Tusimple_data(Dataset):
             instance_label=self.transform(instance_label)
         return lane_image,binary_label,instance_label
  
-class New_Data(Dataset):
+class NewData(Dataset):
     pass
 
 

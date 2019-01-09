@@ -2,7 +2,7 @@ import argparse
 import numpy as np 
 import torch 
 from torch.utils.data import DataLoader,SubsetRandomSampler
-from Data import Tusimple_data,Rescale
+from Data import TusimpleData,Rescale
 from model import LaneNet
 from HNet import HNet
 from loss import Segmentation_loss,variance,distance
@@ -45,14 +45,10 @@ def train(model,data,epoch,batch,class_weight,deelta_v,
     model.to(device)
     model.train()
     params=model.parameters()
-
     optimizer=torch.optim.Adam(params,lr=lr)
-
     start_time=datetime.datetime.now()
     log=open('./logs/loggings/LaneNet_{}.txt'.format(start_time),'w')
-
     for e_p in range(epoch):
-
         for batch_id,batch_data in enumerate(data['train']):
             input_data=batch_data[0]
             seg_mask=batch_data[1]
@@ -60,11 +56,9 @@ def train(model,data,epoch,batch,class_weight,deelta_v,
             input_data=input_data.to(device)
             seg_mask=seg_mask.to(device)
             instance_mask=instance_mask.to(device)
-
             predictions,embeddings=model(input_data)
             total_loss=compute_loss(predictions,embeddings,mask,seg_mask,instance_mask,
-                                    class_weight,delta_v,delta_d)
-            
+                                    class_weight,delta_v,delta_d)         
             log.write('Steps:{},Loss:{}'.format(batch_id*(e_p+1),total_loss))
             log.flush()
             optimizer.zero_grad()

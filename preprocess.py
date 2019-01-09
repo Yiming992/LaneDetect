@@ -8,7 +8,7 @@ import torch
 TUSIMPLE_PATH='./train_set'
  
 ##标注并结构化图森数据集
-class create_tusimple_data():
+class CreateTusimpleData():
 
     def __init__(self,tusimple,line_width):
 
@@ -68,7 +68,7 @@ class Rescale():
         
 if __name__=='__main__':
 
-    creator=create_tusimple_data(TUSIMPLE_PATH,5)
+    creator=CreateTusimpleData(TUSIMPLE_PATH,5)
     creator()
 
 
