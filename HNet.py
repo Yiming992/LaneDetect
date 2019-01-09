@@ -8,7 +8,7 @@ class ConvBlock(nn.Module):
         super(ConvBlock,self).__init__()
         self.net=nn.Sequential(nn.Conv2d(input_c,output_c,size,stride=stride,padding=padding),
                                nn.BtachNorm2d(output_c),
-                               nn.ReLu())
+                               nn.ReLU())
     def forward(self,x):
         return self.net(x)
 
@@ -18,17 +18,17 @@ class LinearBlock(nn.Module):
         super(LinearBlock,self).__init__()
         self.net=nn.Sequential(nn.Linear(input_c,output_c),
                                nn.BatchNorm2d(output_c),
-                               nn.ReLu()) 
+                               nn.ReLU()) 
     def forward(self,x):
         return self.net(x)
 
 
 class HNet(nn.Module):
 
-	def __init__(self):
-		super(HNet,self).__init__()
-		self.conv=nn.Sequential(ConvBlock(3,16,3),
-			                    ConvBlock(16,16,3),
+    def __init__(self):
+        super(HNet,self).__init__()
+        self.conv=nn.Sequential(ConvBlock(3,16,3),
+                                ConvBlock(16,16,3),
                                 nn.AdaptiveMaxpool2d([64,32]),
                                 ConvBlock(16,32,3),
                                 ConvBlock(32,32,3),

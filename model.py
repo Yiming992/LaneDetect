@@ -196,7 +196,9 @@ class LaneNet(nn.Module):
 if __name__=='__main__':
 
     model=LaneNet()
-
+    from train import  split_dataset,build_sampler
+    
+    train_indices,test_indices=split_dataset()
 
 
         

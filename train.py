@@ -1,5 +1,4 @@
 import argparse
-import shuffle
 import numpy as np 
 import torch 
 from torch.utils.data import DataLoader,SubsetRandomSampler
@@ -8,13 +7,16 @@ from model import LaneNet
 from HNet import HNet
 from loss import Segmentation_loss,variance,distance
 import datetime
+from torchvision import transforms
+import os
+import random
 
-Transform=transforms.Compose([Rescale((512,256))])
+#Transform=transforms.Compose([Rescale((512,256))])
 
 def split_dataset(test_ratio=0.2):
     dataset_size=len(os.listdir(os.path.join('./data','LaneImages')))
     indices=list(range(dataset_size))
-    split=dataset_size*test_ratio
+    split=round(dataset_size*test_ratio)
     random.shuffle(indices)
     train_indices=indices[split:]
     test_indices=indices[:split]
@@ -27,7 +29,6 @@ def build_sampler(data,train_batch_size,test_batch_size,train_index,test_index):
     test_loader=DataLoader(data,batch_size=test_batch_size,sampler=test_sampler)
     return train_loader,test_loader
 
-
 def compute_loss(predictions,embeddings,seg_mask,instance_mask,
                  class_weight,delta_v,delta_d):
     seg_loss=Segmentation_loss(predictions,seg_mask,class_weight)
@@ -37,8 +38,8 @@ def compute_loss(predictions,embeddings,seg_mask,instance_mask,
     return total_loss
 
 
-def train(model,data,epoch,batch,lr=3e-5,optimizer='Adam',mode='GPU',
-          class_weight,delta_v,delta_d):
+def train(model,data,epoch,batch,class_weight,deelta_v,
+          delta_d,lr=3e-5,optimizer='Adam',mode='GPU',):
     if mode=='GPU':
         device=torch.device('cuda')
     model.to(device)
@@ -87,7 +88,7 @@ if __name__=='__main__':
     ap.add_argument('-o','--optimizer',required=True,default='Adam')#optimizer
     ap.add_argument('-d','--device',required=True,default='GPU')#training device
     ap.add_argument('t','--test_ratio',required=True,default=.2)
-    ap.add_argument('cl','class_weight',required=True,default)
+    ap.add_argument('cl','class_weight',required=True,default=.5)
     #ap.add_argument()
     #ap.add_argument()
     #
