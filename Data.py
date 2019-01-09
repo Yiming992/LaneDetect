@@ -36,9 +36,10 @@ class TusimpleData(Dataset):
             binary_label=self.transform(binary_label)
             instance_label=self.transform(instance_label)
 
-        lane_image=torch.tensor(lane_image,dtype=torch.float)
-        binary_label=torch.tensor(binary_label,dtype=torch.float)
-        instance_label=torch.tensor(instance_label,dtype=torch.float)
+        lane_image=torch.tensor(lane_image,dtype=torch.float)/255.
+        lane_image=torch.transpose(lane_image,0,-1)
+        binary_label=torch.tensor(binary_label,dtype=torch.float)/255.
+        instance_label=torch.tensor(instance_label,dtype=torch.float)/255.
 
         return lane_image,binary_label,instance_label
  

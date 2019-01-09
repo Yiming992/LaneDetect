@@ -9,10 +9,10 @@ import cv2
 class Initial(nn.Module):
     def __init__(self):
         super(Initial,self).__init__()
-        self.net=nn.ModuleList([nn.Sequential(nn.Conv2d(3,13,3,stride=2,padding=1),
+        self.net=nn.ModuleList([nn.Sequential(nn.Conv2d(3,13,2,stride=2),
                                               nn.PReLU(),
                                               nn.BatchNorm2d(13)),
-                                nn.AdaptiveMaxPool2d(256)])
+                                nn.AdaptiveMaxPool2d((256,128))])
 
     def forward(self,x):
         y=x
@@ -21,7 +21,7 @@ class Initial(nn.Module):
         return torch.cat([x,y],dim=1)
 
 class Bottleneck(nn.Module):
-    def __init__(self,input_c,output_c,P,Type='downsampling',pool_size=128,ratio=2):
+    def __init__(self,input_c,output_c,P,Type='downsampling',pool_size=(128,64),ratio=2):
         super(Bottleneck,self).__init__()
         self.Type=Type
         if self.Type=='downsampling':
