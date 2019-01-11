@@ -23,7 +23,7 @@ class Initial(nn.Module):
 class Bottleneck(nn.Module):
     def __init__(self,input_c,output_c,P,
                  Type='downsampling',pool_size=(128,64),
-                 pad=0,ratio=2):
+                 pad=0,ratio=2,pool_indices=None):
         super(Bottleneck,self).__init__()
         self.Type=Type
         if self.Type=='downsampling':
@@ -37,7 +37,7 @@ class Bottleneck(nn.Module):
                                                            nn.PReLU(),
                                                            nn.BatchNorm2d(output_c)),
                                     'dropout':nn.Dropout2d(p=P),
-                                    'Pooling':nn.AdaptiveMaxPool2d(pool_size)})
+                                    'Pooling':nn.AdaptiveMaxPool2d(pool_size,return_indices=True)})
 
         elif self.Type.split()[0]=='asymmetric':
             self.net=nn.ModuleDict({'block1':nn.Sequential(nn.Conv2d(input_c,input_c//ratio,1),
@@ -75,15 +75,17 @@ class Bottleneck(nn.Module):
                                                            nn.BatchNorm2d(output_c)),
                                     'dropout':nn.Dropout2d(p=P)})
         elif self.Type=='upsampling':
+            self.pool_indices=pool_indices
             self.net=nn.ModuleDict({'block1':nn.Sequential(nn.Conv2d(input_c,input_c//ratio,1),
                                                            nn.PReLU(),
                                                            nn.BatchNorm2d(input_c//ratio)),
-                                    'block2':nn.Sequential(nn.ConvTranspose2d(input_c,input_c//ratio,3,padding=pad),
+                                    'block2':nn.Sequential(nn.ConvTranspose2d(input_c//ratio,input_c//ratio,2,padding=pad),
                                                            nn.PReLU(),
                                                            nn.BatchNorm2d(input_c//ratio)),
                                     'block3':nn.Sequential(nn.Conv2d(input_c//ratio,output_c,1),
                                                            nn.PReLU(),
                                                            nn.BatchNorm2d(output_c)),
+                                    'Pooling':nn.MaxUnpool2d(2,stride=2),
                                     'dropout':nn.Dropout2d(p=P)})
 
     def forward(self,x):
@@ -98,18 +100,19 @@ class Bottleneck(nn.Module):
             x=self.net['dropout'](x)
             print(x.size())
 
-            y=self.net['Pooling'](y)
+            y,index=self.net['Pooling'](y)
             print(y.size())
             zero_pads=torch.zeros(x.size(0),x.size(1)-y.size(1),x.size(2),x.size(3))
             y=torch.cat([y,zero_pads],dim=1)
-            
-            return x+y 
+
+            return x+y,index
         else:
             x=self.net['block1'](x)
             x=self.net['block2'](x)
             x=self.net['block3'](x)
-
             x=self.net['dropout'](x)
+            if self.Type=='upsampling':
+                y=self.net['Pooling'](y,self.pool_indices)
 
             return x+y
 
@@ -127,56 +130,64 @@ class RepeatBlock(nn.Sequential):
         self.add_module('Bottleneck_8',Bottleneck(output_c,output_c,0.1,Type='dilated 16',pad=16))
 
 
-class Decoder(nn.Sequential):
-    def __init__(self,input_c,mid_c,output_c):
+class Decoder(nn.Module):
+    def __init__(self,input_c,mid_c,output_c,pool_indices):
         super(Decoder,self).__init__()
         self.add_module('Bottleneck_1',Bottleneck(input_c,mid_c,0.1,Type='upsampling'))
         self.add_module('Bottleneck_2',Bottleneck(mid_c,mid_c,0.1,Type='normal',pad=1))
         self.add_module('Bottleneck_3',Bottleneck(mid_c,mid_c,0.1,Type='normal'))
         self.add_module('Bottleneck_4',Bottleneck(mid_c,output_c,0.1,Type='upsampling',pad=1))
         #self.add_module('Bottleneck_5',Bottleneck(output_c,output_c,0.1,Type='normal'))
-
+    
+    def forward():
+        pass
 
 '''Shared Encoder'''
 class SharedEncoder(nn.Module):
     def __init__(self):
         super(SharedEncoder,self).__init__()
         self.initial=Initial()
-        self.net=nn.Sequential(Bottleneck(16,64,0.01,pad=1),
+        self.downsample=nn.ModuleDict({'downsample_1':Bottleneck(16,64,0.01,pad=1),
+                                       'downsample_2':Bottleneck(64,128,0.1,pool_size=(64,32),pad=1)})
+        self.net=nn.Sequential(Bottleneck(64,64,0.01,Type='normal',pad=1),
                                Bottleneck(64,64,0.01,Type='normal',pad=1),
                                Bottleneck(64,64,0.01,Type='normal',pad=1),
-                               Bottleneck(64,64,0.01,Type='normal',pad=1),
-                               Bottleneck(64,64,0.01,Type='normal',pad=1),
-                               Bottleneck(64,128,0.1,pool_size=(64,32),pad=1),
+                               Bottleneck(64,64,0.01,Type='normal',pad=1)
                                )
         self.tail=RepeatBlock(128,128)
 
     def forward(self,x):
+        pool_indices={}
         x=self.initial(x)
+        x,index=self.downsample['downsample_1'](x)
+        pool_indices['downsample_1']=index
         x=self.net(x)
+        x,index=self.downsample('downsample_2')(x)
+        pool_indices['downsample_2']=index
         x=self.tail(x)
-        return x
+        return x,pool_indices
         
 '''Embedding'''
 class Embedding(nn.Module):  
-    def __init__(self,embed_size):
+    def __init__(self,embed_size,pool_indices=None):
         super(Embedding,self).__init__()
+        self.pool_indices=pool_indices
         self.net=nn.Sequential(RepeatBlock(128,128),
-                               Decoder(128,64,embed_size))
+                               Decoder(128,64,embed_size,self.pool_indices))
         
     def forward(self,x):
         return self.net(x)
 
 '''Segmentation'''
 class Segmentation(nn.Module):   
-    def __init__(self):
+    def __init__(self,pool_indices=None):
         super(Segmentation,self).__init__()
+        self.pool_indices=pool_indices
         self.net=nn.Sequential(RepeatBlock(128,128),
-                               Decoder(128,64,1))
+                               Decoder(128,64,1,self.pool_indices))
 
     def forward(self,x):
         return self.net(x)
-
 
 '''LaneNet'''
 class LaneNet(nn.Module):
