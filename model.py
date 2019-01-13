@@ -5,7 +5,9 @@ import torch.nn as nn
 import torch.nn.functional as F 
 import numpy as np 
 import cv2
-
+'''''''''''''''''''''''''''''''''''''''''''''
+LaneNet based on paper 'Towards End-to-End Lane Detection: an Instance Segmentation Approach'
+'''''''''''''''''''''''''''''''''''''''''''''
 class Initial(nn.Module):
     def __init__(self):
         super(Initial,self).__init__()
@@ -198,9 +200,9 @@ class LaneNet(nn.Module):
                                 'Segmentation':Segmentation()})
         
     def forward(self,x):
-        x=self.net['Shared_Encoder'](x)
-        x1=self.net['Embedding'](x)
-        x2=self.net['Segmentation'](x)
+        x,pool_indices=self.net['Shared_Encoder'](x)
+        x1=self.net['Embedding'](x,pool_indices)
+        x2=self.net['Segmentation'](x,pool_indices)
         return x1,x2
 
 if __name__=='__main__':    
