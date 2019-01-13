@@ -31,7 +31,7 @@
     |------|------LaneImages/:包含相机拍摄的原始RGB数据
 
 ## 网络结构
-![Imgur](./Images/LaneNet_Architecture.png)
+![image](./Images/LaneNet_Architecture.png)
 
 ## 项目细节及进度
 - [x] LaneNet 模型构建
@@ -39,7 +39,7 @@
 - [x] 测试数据集清洗和生成(Tusimple Dataset)
 - [x] 预测阶段聚类算法的实现
 - [x] 构建训练和评估pipeline
-- [-] 模型训练，debug与调参
+- [ ] 模型训练，debug与调参
 - [ ] 加入TensorRT模型加速
 
 
