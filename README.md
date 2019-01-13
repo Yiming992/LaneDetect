@@ -31,7 +31,7 @@
     |------|------LaneImages/:包含相机拍摄的原始RGB数据
 
 ## 网络结构
-![image](./Images/LaneNet_Architecture.png)
+![image](./Images/LaneNet_Architecture.PNG)
 
 ## 项目细节及进度
 - [x] LaneNet 模型构建
