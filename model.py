@@ -177,7 +177,7 @@ class Embedding(nn.Module):
     def __init__(self,embed_size):
         super(Embedding,self).__init__()
         self.net=nn.ModuleDict({'repeat':RepeatBlock(128,128),
-                                'decoder':Decoder(128,64,embed_size}))
+                                'decoder':Decoder(128,64,embed_size)})
         
     def forward(self,x,pool_indices=None):
         x=self.net['repeat'](x)
