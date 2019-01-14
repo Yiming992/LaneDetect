@@ -25,7 +25,7 @@ class Initial(nn.Module):
 class Bottleneck(nn.Module):
     def __init__(self,input_c,output_c,P,
                  Type='downsampling',pool_size=(128,64),
-                 pad=0,ratio=2,pool_indices=None):
+                 pad=0,ratio=2):
         super(Bottleneck,self).__init__()
         self.Type=Type
         if self.Type=='downsampling':
@@ -77,7 +77,6 @@ class Bottleneck(nn.Module):
                                                            nn.BatchNorm2d(output_c)),
                                     'dropout':nn.Dropout2d(p=P)})
         elif self.Type=='upsampling':
-            self.pool_indices=pool_indices
             self.net=nn.ModuleDict({'block1':nn.Sequential(nn.Conv2d(input_c,input_c//ratio,1),
                                                            nn.PReLU(),
                                                            nn.BatchNorm2d(input_c//ratio)),
@@ -90,7 +89,7 @@ class Bottleneck(nn.Module):
                                     'Pooling':nn.MaxUnpool2d(2,stride=2),
                                     'dropout':nn.Dropout2d(p=P)})
 
-    def forward(self,x):
+    def forward(self,x,pool_index=None):
         y=x
         print(y.size())
         print(self.Type)
@@ -114,7 +113,7 @@ class Bottleneck(nn.Module):
             x=self.net['block3'](x)
             x=self.net['dropout'](x)
             if self.Type=='upsampling':
-                y=self.net['Pooling'](y,self.pool_indices)
+                y=self.net['Pooling'](y,pool_index)
 
             return x+y
 
@@ -133,16 +132,20 @@ class RepeatBlock(nn.Sequential):
 
 
 class Decoder(nn.Module):
-    def __init__(self,input_c,mid_c,output_c,pool_indices):
+    def __init__(self,input_c,mid_c,output_c):
         super(Decoder,self).__init__()
-        self.add_module('Bottleneck_1',Bottleneck(input_c,mid_c,0.1,Type='upsampling'))
-        self.add_module('Bottleneck_2',Bottleneck(mid_c,mid_c,0.1,Type='normal',pad=1))
-        self.add_module('Bottleneck_3',Bottleneck(mid_c,mid_c,0.1,Type='normal'))
-        self.add_module('Bottleneck_4',Bottleneck(mid_c,output_c,0.1,Type='upsampling',pad=1))
+        self.upsample=nn.ModuleDict({'upsample_1':Bottleneck(input_c,mid_c,0,1,Type='upsampling'),
+                                     'upsample_2':Bottleneck(mid_c,output_c,0.1,Type='upsampling',pad=1)})
+        self.net=nn.ModuleDict({'normal_1':Bottleneck(mid_c,mid_c,0.1,Type='normal',pad=1),
+                                'normal_2':Bottleneck(mid_c,mid_c,0.1,Type='normal')})                             
         #self.add_module('Bottleneck_5',Bottleneck(output_c,output_c,0.1,Type='normal'))
     
-    def forward():
-        pass
+    def forward(self,x,pool_indices):
+        x=self.upsample['upsample_1'](x,pool_index=pool_indices['downsample_1'])
+        x=self.net['normal_1'](x)
+        x=self.net['normal_2'](x)
+        self.upsample['upsample_2'](x,pool_index=pool_indices['downsample_2'])
+        return x
 
 '''Shared Encoder'''
 class SharedEncoder(nn.Module):
@@ -171,25 +174,27 @@ class SharedEncoder(nn.Module):
         
 '''Embedding'''
 class Embedding(nn.Module):  
-    def __init__(self,embed_size,pool_indices=None):
+    def __init__(self,embed_size):
         super(Embedding,self).__init__()
-        self.pool_indices=pool_indices
-        self.net=nn.Sequential(RepeatBlock(128,128),
-                               Decoder(128,64,embed_size,self.pool_indices))
+        self.net=nn.ModuleDict({'repeat':RepeatBlock(128,128),
+                                'decoder':Decoder(128,64,embed_size}))
         
-    def forward(self,x):
-        return self.net(x)
+    def forward(self,x,pool_indices=None):
+        x=self.net['repeat'](x)
+        x=self.net['decoder'](x,pool_indices)
+        return x
 
 '''Segmentation'''
 class Segmentation(nn.Module):   
-    def __init__(self,pool_indices=None):
+    def __init__(self):
         super(Segmentation,self).__init__()
-        self.pool_indices=pool_indices
-        self.net=nn.Sequential(RepeatBlock(128,128),
-                               Decoder(128,64,1,self.pool_indices))
+        self.net=nn.ModuleDict({'repeat':RepeatBlock(128,128),
+                                'decoder':Decoder(128,64,1)})
 
-    def forward(self,x):
-        return self.net(x)
+    def forward(self,x,pool_indices=None):
+        x=self.net['repeat'](x)
+        x=self.net['decoder'](x)
+        return x
 
 '''LaneNet'''
 class LaneNet(nn.Module):
