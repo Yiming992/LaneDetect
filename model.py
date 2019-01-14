@@ -94,35 +94,25 @@ class Bottleneck(nn.Module):
 
     def forward(self,x,pool_index=None):
         y=x
-        print(y.size())
-        print(self.Type)
         if self.Type=='downsampling':
-            print('meet downsample condition')
             x=self.net['block1'](x)
             x=self.net['block2'](x)
             x=self.net['block3'](x)
             x=self.net['dropout'](x)
-            print(x.size())
             y,index=self.net['Pooling'](y)
             zero_pads=torch.zeros(x.size(0),x.size(1)-y.size(1),y.size(2),y.size(3))
             y=torch.cat([y,zero_pads],dim=1)
-            print(y.size())
 
             return x+y,index
         else:
             x=self.net['block1'](x)
-            print(x.size())
             x=self.net['block2'](x)
-            print(x.size())
             x=self.net['block3'](x)
-            print(x.size())
             x=self.net['dropout'](x)
             if self.Type=='upsampling':
                 y=self.net['block4'](y)
-                print('X_shape:{}',format(x.size()))
-                print(pool_index.size())
                 y=self.net['unpooling'](y,pool_index)
-                print(y.size())
+
             return x+y
 
 

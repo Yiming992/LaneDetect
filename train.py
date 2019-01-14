@@ -7,11 +7,8 @@ from model import LaneNet
 from HNet import HNet
 from loss import Segmentation_loss,variance,distance
 import time
-from torchvision import transforms
 import os
 import random
-
-#Transform=transforms.Compose([Rescale((512,256))])
 
 def split_dataset(test_ratio=0.2):
     dataset_size=len(os.listdir(os.path.join('./data','LaneImages')))
@@ -32,13 +29,13 @@ def build_sampler(data,train_batch_size,test_batch_size,train_index,test_index):
 def compute_loss(predictions,embeddings,seg_mask,instance_mask,
                  class_weight,delta_v,delta_d):
     seg_loss=Segmentation_loss(predictions,seg_mask,class_weight)
-    variance=variance(delta_v,embeddings,instance_mask)
-    distance=distance(delta_d,embeddings,instance_mask)
-    total_loss=seg_loss+.5*variance+.5*distance
+    Variance=variance(delta_v,embeddings,instance_mask)
+    Distance=distance(delta_d,embeddings,instance_mask)
+    total_loss=seg_loss+.5*Variance+.5*Distance
     return total_loss
 
 
-def train(model,data,epoch,batch,class_weight,deelta_v,
+def train(model,data,epoch,batch,class_weight,delta_v,
           delta_d,lr=3e-5,optimizer='Adam',mode='GPU'):
     if mode=='GPU':
         device=torch.device('cuda',0)
@@ -49,9 +46,7 @@ def train(model,data,epoch,batch,class_weight,deelta_v,
     params=model.parameters()
     optimizer=torch.optim.Adam(params,lr=lr)
     start_time=int(time.time())
-    total_loss=open('./logs/loggings/LaneNet_{}.txt'.format(start_time),'w')
-    #segmentation_loss=open()
-    #instance_loss=open()
+    log=open('./logs/loggings/LaneNet_{}.txt'.format(start_time),'w')
     for e_p in range(epoch):
         for batch_id,batch_data in enumerate(data['train']):
             input_data=batch_data[0]
@@ -61,7 +56,7 @@ def train(model,data,epoch,batch,class_weight,deelta_v,
             seg_mask=seg_mask.to(device)
             instance_mask=instance_mask.to(device)
             predictions,embeddings=model(input_data)
-            total_loss=compute_loss(predictions,embeddings,mask,seg_mask,instance_mask,
+            total_loss=compute_loss(predictions,embeddings,seg_mask,instance_mask,
                                     class_weight,delta_v,delta_d)         
             log.write('Steps:{},Loss:{}'.format(batch_id*(e_p+1),total_loss))
             log.flush()
@@ -87,7 +82,6 @@ if __name__=='__main__':
     ap.add_argument('-cl','--class_weight',default=.5)
     #ap.add_argument()
     #ap.add_argument()
-    #
 
     args=vars(ap.parse_args())
     
