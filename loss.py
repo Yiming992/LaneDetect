@@ -3,9 +3,10 @@ import numpy as np
 import os
 from collections import defaultdict
 import torch.nn as nn
+import cv2
 
 ###计算不同类的权重
-def enet_weighing(data):
+def bi_weighing(data):
     frequency=defaultdict(lambda:0)
     images=os.listdir(data)
     for img in images:
@@ -19,7 +20,7 @@ def enet_weighing(data):
 
 ###语意分割损失函数
 def Segmentation_loss(predictions,label,class_weights):
-    loss=nn.CrossEntropyLoss(predictions,label,weight=torch.tensor((class_weights['lane'],class_weights['background'])))
+    loss=nn.CrossEntropyLoss(predictions,label,weight=torch.tensor(np.array(class_weights['lane'],class_weights['background'])))
     return loss	
     
 ####聚类损失函数

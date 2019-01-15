@@ -5,9 +5,10 @@ from torch.utils.data import DataLoader,SubsetRandomSampler
 from Data import TusimpleData,Rescale
 from model import LaneNet
 from HNet import HNet
-from loss import Segmentation_loss,variance,distance
+from loss import Segmentation_loss,variance,distance,bi_weighing
 import time
 import os
+import cv2
 import random
 
 def split_dataset(test_ratio=0.2):
@@ -47,6 +48,7 @@ def train(model,data,epoch,batch,class_weight,delta_v,
     optimizer=torch.optim.Adam(params,lr=lr)
     start_time=int(time.time())
     log=open('./logs/loggings/LaneNet_{}.txt'.format(start_time),'w')
+    class_weight=bi_weighing('./data/train_binary')
     for e_p in range(epoch):
         for batch_id,batch_data in enumerate(data['train']):
             input_data=batch_data[0]
@@ -79,23 +81,21 @@ if __name__=='__main__':
     ap.add_argument('-o','--optimizer',default='Adam')#optimizer
     ap.add_argument('-d','--device',default='GPU')#training device
     ap.add_argument('-t','--test_ratio',default=.2)
-    ap.add_argument('-cl','--class_weight',default=.5)
+    #ap.add_argument('-cl','--class_weight',default=.5)
     #ap.add_argument()
     #ap.add_argument()
-
+    
     args=vars(ap.parse_args())
     
     train_indices,test_indices=split_dataset(args['test_ratio'])
-    data=build_sampler(TusimpleData('./data',transform=Rescale((512,256))),
+    data=build_sampler(TusimpleData('./data',transform=Rescale((256,512))),
                                              args['batch'],1,
-                                             train_indices,test_indices)
-    
+                                             train_indices,test_indices)    
     model=LaneNet()
-
+    
     train(model,data,args['epoch'],args['batch'],args['learning_rate'],
-          args['optimizer'],args['device'],args['class_weight'],args['delta_v'],
-          args['delta_d'])
-
+          args['optimizer'],args['delta_v'],args['delta_d'])
+     
 
 
 
