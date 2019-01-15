@@ -10,9 +10,9 @@ def bi_weighing(data):
     frequency=defaultdict(lambda:0)
     images=os.listdir(data)
     for img in images:
-        img_array=cv2.imread(img)
-        frequency['background']+=(img==0).sum()
-        frequency['lane']+=(img==255).sum()
+        img_array=cv2.imread(os.path.join(data,img),cv2.IMREAD_UNCHANGED)
+        frequency['background']+=(img_array==0).sum()
+        frequency['lane']+=(img_array==255).sum()
     class_weights=defaultdict(lambda:0)
     class_weights['background']=1/np.log(1.02+frequency['background']/(frequency['background']+frequency['lane']))
     class_weights['lane']=1/np.log(1.02+frequency['lane']/(frequency['background']+frequency['lane']))

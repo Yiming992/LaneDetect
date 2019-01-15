@@ -39,7 +39,7 @@ class TusimpleData(Dataset):
             instance_label=self.transform(instance_label)
         
         binary_label=np.stack([binary_label/255.,np.ones_like(binary_label)-binary_label/255.],axis=0)
-        instance_label=np.stack([instance_label/255.,np.ones_like(instance_label)-instance_label/255.],axis=0)
+        instance_label=np.stack([instance_label,np.ones_like(instance_label)-instance_label],axis=0)
         lane_image=np.transpose(lane_image,(2,0,1))
 
         lane_image=torch.tensor(lane_image,dtype=torch.float)/255.
