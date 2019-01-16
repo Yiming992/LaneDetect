@@ -38,12 +38,10 @@ class TusimpleData(Dataset):
             binary_label=self.transform(binary_label)
             instance_label=self.transform(instance_label)
         
-        binary_label=np.stack([binary_label/255.,np.ones_like(binary_label)-binary_label/255.],axis=0)
-        instance_label=np.stack([instance_label,np.ones_like(instance_label)-instance_label],axis=0)
+        binary_label=binary_label/255
         lane_image=np.transpose(lane_image,(2,0,1))
 
         lane_image=torch.tensor(lane_image,dtype=torch.float)/255.
-        binary_label=torch.tensor(binary_label,dtype=torch.float)
         instance_label=torch.tensor(instance_label,dtype=torch.float)
         return lane_image,binary_label,instance_label
  

@@ -100,7 +100,7 @@ class Bottleneck(nn.Module):
             x=self.net['block3'](x)
             x=self.net['dropout'](x)
             y,index=self.net['Pooling'](y)
-            zero_pads=torch.zeros(x.size(0),x.size(1)-y.size(1),y.size(2),y.size(3))
+            zero_pads=torch.zeros(x.size(0),x.size(1)-y.size(1),y.size(2),y.size(3)).cuda()
             y=torch.cat([y,zero_pads],dim=1)
 
             return x+y,index
@@ -140,7 +140,6 @@ class SharedEncoder(nn.Module):
         pool_indices['downsample_2']=index
         x=self.tail(x)
         return x,pool_indices
-
 
 
 '''Repeat Block'''
@@ -193,7 +192,7 @@ class Segmentation(nn.Module):
     def __init__(self):
         super(Segmentation,self).__init__()
         self.net=nn.ModuleDict({'repeat':RepeatBlock(128,128),
-                                'decoder':Decoder(128,64,16,1)})
+                                'decoder':Decoder(128,64,16,2)})
 
     def forward(self,x,pool_indices=None):
         x=self.net['repeat'](x)
@@ -212,7 +211,7 @@ class LaneNet(nn.Module):
         x,pool_indices=self.net['Shared_Encoder'](x)
         embeddings=self.net['Embedding'](x,pool_indices)
         segmentation=self.net['Segmentation'](x,pool_indices)
-        return embeddings,segmentation
+        return segmentation,embeddings
 
 if __name__=='__main__':
     model=LaneNet()

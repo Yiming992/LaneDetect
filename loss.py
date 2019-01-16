@@ -6,21 +6,24 @@ import torch.nn as nn
 import cv2
 
 ###计算不同类的权重
-def bi_weighing(data):
-    frequency=defaultdict(lambda:0)
-    images=os.listdir(data)
-    for img in images:
-        img_array=cv2.imread(os.path.join(data,img),cv2.IMREAD_UNCHANGED)
-        frequency['background']+=(img_array==0).sum()
-        frequency['lane']+=(img_array==255).sum()
-    class_weights=defaultdict(lambda:0)
-    class_weights['background']=1/np.log(1.02+frequency['background']/(frequency['background']+frequency['lane']))
-    class_weights['lane']=1/np.log(1.02+frequency['lane']/(frequency['background']+frequency['lane']))
+def bi_weight(data,batch):
+    frequency=defaultdict(lambda:torch.tensor(0.))
+    for i in range(batch):                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+        img_tensor=data[i,:,:]
+        frequency['background']+=(img_tensor==0.).sum()
+        frequency['lane']+=(img_tensor==1.).sum()
+    class_weights=defaultdict(lambda:torch.tensor(0.))
+    class_weights['background']=1./torch.log(1.02+frequency['background']/(frequency['background']+frequency['lane']))
+    class_weights['lane']=1./torch.log(1.02+frequency['lane']/(frequency['background']+frequency['lane']))
     return class_weights
 
 ###语意分割损失函数
 def Segmentation_loss(predictions,label,class_weights):
-    loss=nn.CrossEntropyLoss(predictions,label,weight=torch.tensor(np.array(class_weights['lane'],class_weights['background'])))
+    loss=nn.CrossEntropyLoss(weight=torch.tensor([class_weights['background'].item(),class_weights['lane'].item()]).cuda())
+    print(loss)
+    label=label.type(torch.long)
+    print(predictions.size())
+    loss=loss(predictions,label)
     return loss	
     
 ####聚类损失函数
@@ -31,7 +34,7 @@ def variance(delta_v,embeddings,labels):
     var_loss=torch.tensor(0.)
     for i in range(num_samples):
         sample_embedding=embeddings[i,:,:,:]
-        sample_label=labels[i,0,:,:]
+        sample_label=labels[i,:,:]
         num_clusters=len(sample_label.unique())-1
         sample_label=sample_label.view(sample_label.size(0)*sample_label.size(1))
         sample_embedding=sample_embedding.view(-1,sample_embedding.size(1)*sample_embedding.size(2))
@@ -53,7 +56,7 @@ def distance(delta_d,embeddings,labels):
     for i in range(num_samples):
         clusters=[]
         sample_embedding=embeddings[i,:,:,:]
-        sample_label=labels[i,0,:,:]
+        sample_label=labels[i,:,:]
         num_clusters=len(sample_label.unique())-1
         sample_label=sample_label.view(sample_label.size(0)*sample_label.size(1))
         sample_embedding=sample_embedding.view(-1,sample_embedding.size(1)*sample_embedding.size(2))

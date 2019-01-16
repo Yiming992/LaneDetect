@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader,SubsetRandomSampler
 from Data import TusimpleData,Rescale
 from model import LaneNet
 from HNet import HNet
-from loss import Segmentation_loss,variance,distance,bi_weighing
+from loss import Segmentation_loss,variance,distance,bi_weight
 import time
 import os
 import cv2
@@ -48,12 +48,13 @@ def train(model,data,epoch,batch,class_weight,delta_v,
     optimizer=torch.optim.Adam(params,lr=lr)
     start_time=int(time.time())
     log=open('./logs/loggings/LaneNet_{}.txt'.format(start_time),'w')
-    class_weight=bi_weighing('./data/train_binary')
     for e_p in range(epoch):
         for batch_id,batch_data in enumerate(data['train']):
             input_data=batch_data[0]
             seg_mask=batch_data[1]
-            instance_mask=batch_data[2]          
+            instance_mask=batch_data[2]
+
+            class_weight=bi_weight(seg_mask,batch)          
             input_data=input_data.to(device)
             seg_mask=seg_mask.to(device)
             instance_mask=instance_mask.to(device)
