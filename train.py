@@ -36,7 +36,7 @@ def compute_loss(predictions,embeddings,seg_mask,instance_mask,
     return total_loss
 
 
-def train(model,data,epoch,batch,class_weight,delta_v,
+def train(model,data,epoch,batch,delta_v,
           delta_d,lr=3e-5,optimizer='Adam',mode='GPU'):
     if mode=='GPU':
         device=torch.device('cuda',0)
@@ -60,7 +60,7 @@ def train(model,data,epoch,batch,class_weight,delta_v,
             instance_mask=instance_mask.to(device)
             predictions,embeddings=model(input_data)
             total_loss=compute_loss(predictions,embeddings,seg_mask,instance_mask,
-                                    class_weight,delta_v,delta_d)         
+                                    class_weight,delta_v,delta_d)                               
             log.write('Steps:{},Loss:{}'.format(batch_id*(e_p+1),total_loss))
             log.flush()
             optimizer.zero_grad()
@@ -75,10 +75,10 @@ if __name__=='__main__':
     ap=argparse.ArgumentParser() 
  
     ap.add_argument('-e','--epoch',default=10)#Epoch
-    ap.add_argument('-b','--batch',default=4)#Batch_size
-    ap.add_argument('-dv','--delta_v',default=1)#delta_v
-    ap.add_argument('-dd','--delta_d',default=1)#delta_d
-    ap.add_argument('-l','--learning_rate',default=3e-5)#learning_rate
+    ap.add_argument('-b','--batch',default=1)#Batch_size
+    ap.add_argument('-dv','--delta_v',default=.5)#delta_v
+    ap.add_argument('-dd','--delta_d',default=3)#delta_d
+    ap.add_argument('-l','--learning_rate',default=5e-4)#learning_rate
     ap.add_argument('-o','--optimizer',default='Adam')#optimizer
     ap.add_argument('-d','--device',default='GPU')#training device
     ap.add_argument('-t','--test_ratio',default=.2)
@@ -89,13 +89,12 @@ if __name__=='__main__':
     args=vars(ap.parse_args())
     
     train_indices,test_indices=split_dataset(args['test_ratio'])
-    data=build_sampler(TusimpleData('./data',transform=Rescale((256,512))),
-                                             args['batch'],1,
-                                             train_indices,test_indices)    
+    data=build_sampler(TusimpleData('./data'),args['batch'],1,train_indices,test_indices)    
     model=LaneNet()
     
-    train(model,data,args['epoch'],args['batch'],args['learning_rate'],
-          args['optimizer'],args['delta_v'],args['delta_d'])
+    train(model,data,args['epoch'],args['batch'],
+          args['delta_v'],args['delta_d'],args['learning_rate'],
+          args['optimizer'])
      
 
 

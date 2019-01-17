@@ -12,7 +12,6 @@ class Rescale():
     def __call__(self,sample):
         return cv2.resize(sample,self.size,interpolation=cv2.INTER_AREA)
 
-
 class TusimpleData(Dataset):
     def __init__(self,root_dir,transform=None):
         super(TusimpleData,self).__init__()
@@ -48,19 +47,6 @@ class TusimpleData(Dataset):
 class NewData(Dataset):
     pass
 
-if __name__=='__main__':
-
-    from train import split_dataset,build_sampler
-    
-
-    train_indices,test_indices=split_dataset(.2)
-    data=build_sampler(TusimpleData('./data',transform=Rescale((256,512))),
-                                             4,1,
-                                             train_indices,test_indices)
-    for i in data['train']:
-
-        print(i[0].size())
-        print(i[1].size())
 
 
 
