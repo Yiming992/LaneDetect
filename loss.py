@@ -75,7 +75,7 @@ def distance(delta_d,embeddings,labels):
                     distance=torch.sqrt(torch.sum(torch.pow(clusters[index]-cluster,2)))
                     loss+=torch.pow(torch.clamp(delta_d-distance,min=0.),2)
         dis_loss+=loss/(num_clusters*(num_clusters-1))
-    return dis_loss
+    return dis_loss/num_samples
 
 ###损失函数用于车道线拟合
 def Hnet_loss():
