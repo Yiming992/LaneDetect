@@ -32,7 +32,7 @@ def compute_loss(predictions,embeddings,seg_mask,instance_mask,
     seg_loss=Segmentation_loss(predictions,seg_mask,class_weight)
     Variance=variance(delta_v,embeddings,instance_mask)
     Distance=distance(delta_d,embeddings,instance_mask)
-    total_loss=seg_loss+.5*Variance+.5*Distance
+    total_loss=Distance
     return total_loss
 
 
@@ -61,7 +61,7 @@ def train(model,data,epoch,batch,delta_v,
             predictions,embeddings=model(input_data)
             total_loss=compute_loss(predictions,embeddings,seg_mask,instance_mask,
                                     class_weight,delta_v,delta_d)                               
-            log.write('Steps:{},Loss:{}'.format(batch_id*(e_p+1),total_loss))
+            log.write('Steps:{}, Loss:{}\n'.format(batch_id*(e_p+1),total_loss))
             log.flush()
             optimizer.zero_grad()
             total_loss.backward()

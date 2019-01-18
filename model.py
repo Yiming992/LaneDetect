@@ -163,7 +163,7 @@ class Decoder(nn.Module):
                                      'upsample_2':Bottleneck(mid_c,output_c,0.1,Type='upsampling')})
         self.net=nn.ModuleDict({'normal_1':Bottleneck(mid_c,mid_c,0.1,Type='normal',pad=1),
                                 'normal_2':Bottleneck(mid_c,mid_c,0.1,Type='normal',pad=1)})
-        self.end=nn.ConvTranspose2d(output_c,final,2,stride=2)                             
+        self.end=nn.Sequential(nn.ConvTranspose2d(output_c,final,2,stride=2))                             
         #self.add_module('Bottleneck_5',Bottleneck(output_c,output_c,0.1,Type='normal'))
     
     def forward(self,x,pool_indices):

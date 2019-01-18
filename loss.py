@@ -40,12 +40,10 @@ def variance(delta_v,embeddings,labels):
         for j in range(num_clusters):
             indices=(sample_label==vals[j]).nonzero()
             indices=indices.squeeze()
-            #print(indices)
             cluster_elements=torch.index_select(sample_embedding,1,indices)
-            Nc=cluster_elements.size(0)
+            Nc=cluster_elements.size(1)
             mean_cluster=cluster_elements.mean(dim=1,keepdim=True)
-            #mean_cluster=mean_cluster.unsqueeze(1)
-            distance=torch.sqrt(torch.sum(torch.pow(cluster_elements-mean_cluster,2)))
+            distance=torch.sqrt(torch.sum(torch.pow(cluster_elements-mean_cluster,2),dim=0))
             loss+=(torch.pow(torch.clamp(distance-delta_v,min=0.),2).sum())/Nc
         var_loss+=loss/num_clusters
     return var_loss/num_samples
@@ -69,8 +67,13 @@ def distance(delta_d,embeddings,labels):
             mean_cluster=cluster_elements.mean(dim=1)
             clusters.append(mean_cluster)
         if clusters:
-            for k in clusters:
-                loss+=torch.clamp(delta_d-torch.sqrt(torch.pow(mean_cluster-k,2).sum()),min=0.)
+            for index in range(num_clusters):
+                if index==num_clusters-1:
+                    break
+                CL=clusters[index+1:]
+                for cluster in CL:
+                    distance=torch.sqrt(torch.sum(torch.pow(clusters[index]-cluster,2)))
+                    loss+=torch.pow(torch.clamp(delta_d-distance,min=0.),2)
         dis_loss+=loss/(num_clusters*(num_clusters-1))
     return dis_loss
 
