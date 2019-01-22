@@ -68,12 +68,12 @@ def distance(delta_d,embeddings,labels):
             clusters.append(mean_cluster)
         if clusters:
             for index in range(num_clusters):
-                if index==num_clusters-1:
-                    break
-                CL=clusters[index+1:]
-                for cluster in CL:
-                    distance=torch.sqrt(torch.sum(torch.pow(clusters[index]-cluster,2)))
-                    loss+=torch.pow(torch.clamp(delta_d-distance,min=0.),2)
+                for idx,cluster in enumerate(clusters):
+                    if index==idx:
+                        continue
+                    else:
+                        distance=torch.sqrt(torch.sum(torch.pow(clusters[index]-cluster,2)))
+                        loss+=torch.pow(torch.clamp(delta_d-distance,min=0.),2)
         dis_loss+=loss/(num_clusters*(num_clusters-1))
     return dis_loss/num_samples
 

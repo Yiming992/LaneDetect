@@ -10,6 +10,7 @@ import time
 import os
 import cv2
 import random
+from torch.nn.utils import clip_grad_value_
 
 def split_dataset(test_ratio=0.2):
     dataset_size=len(os.listdir(os.path.join('./data','LaneImages')))
@@ -32,7 +33,7 @@ def compute_loss(predictions,embeddings,seg_mask,instance_mask,
     seg_loss=Segmentation_loss(predictions,seg_mask,class_weight)
     Variance=variance(delta_v,embeddings,instance_mask)
     Distance=distance(delta_d,embeddings,instance_mask)
-    total_loss=Distance
+    total_loss=.5*Distance
     return total_loss
 
 
@@ -45,7 +46,7 @@ def train(model,data,epoch,batch,delta_v,
     model.to(device)
     model.train()
     params=model.parameters()
-    optimizer=torch.optim.Adam(params,lr=lr)
+    optimizer=torch.optim.Adam(params,lr=lr,eps=.1)
     start_time=int(time.time())
     log=open('./logs/loggings/LaneNet_{}.txt'.format(start_time),'w')
     for e_p in range(epoch):
@@ -65,8 +66,9 @@ def train(model,data,epoch,batch,delta_v,
             log.flush()
             optimizer.zero_grad()
             total_loss.backward()
+            clip_grad_value_(model.parameters(),clip_value=4.)
             optimizer.step()
-
+        
     torch.save(model,os.path.join('./logs/models','model_{}.pkl'.format(start_time)))
     log.close()
 
