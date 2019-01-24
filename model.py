@@ -1,4 +1,4 @@
-'''input image size 720*1280'''
+'''input image size 512*256'''
 import torch
 import os
 import torch.nn as nn
@@ -16,7 +16,7 @@ class Initial(nn.Module):
         self.net=nn.ModuleList([nn.Sequential(nn.Conv2d(3,13,2,stride=2),
                                               nn.PReLU(),
                                               nn.BatchNorm2d(13)),
-                                nn.AdaptiveMaxPool2d((360,640))])
+                                nn.AdaptiveMaxPool2d((256,128))])
 
     def forward(self,x):
         y=x
@@ -26,7 +26,7 @@ class Initial(nn.Module):
 
 class Bottleneck(nn.Module):
     def __init__(self,input_c,output_c,P,
-                 Type='downsampling',pool_size=(180,320),
+                 Type='downsampling',pool_size=(128,64),
                  pad=0,ratio=2):
         super(Bottleneck,self).__init__()
         self.Type=Type
@@ -122,7 +122,7 @@ class SharedEncoder(nn.Module):
         super(SharedEncoder,self).__init__()
         self.initial=Initial()
         self.downsample=nn.ModuleDict({'downsample_1':Bottleneck(16,64,0.01,pad=1),
-                                       'downsample_2':Bottleneck(64,128,0.1,pool_size=(90,160),pad=1)})
+                                       'downsample_2':Bottleneck(64,128,0.1,pool_size=(64,32),pad=1)})
         self.net=nn.Sequential(Bottleneck(64,64,0.01,Type='normal',pad=1),
                                Bottleneck(64,64,0.01,Type='normal',pad=1),
                                Bottleneck(64,64,0.01,Type='normal',pad=1),

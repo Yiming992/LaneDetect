@@ -33,7 +33,7 @@ def compute_loss(predictions,embeddings,seg_mask,instance_mask,
     seg_loss=Segmentation_loss(predictions,seg_mask,class_weight)
     Variance=variance(delta_v,embeddings,instance_mask)
     Distance=distance(delta_d,embeddings,instance_mask)
-    total_loss=.5*Distance
+    total_loss=seg_loss+Variance+Distance
     return total_loss
 
 
@@ -46,7 +46,7 @@ def train(model,data,epoch,batch,delta_v,
     model.to(device)
     model.train()
     params=model.parameters()
-    optimizer=torch.optim.Adam(params,lr=lr,eps=.1)
+    optimizer=torch.optim.Adam(params,lr=lr)
     start_time=int(time.time())
     log=open('./logs/loggings/LaneNet_{}.txt'.format(start_time),'w')
     for e_p in range(epoch):
@@ -66,7 +66,7 @@ def train(model,data,epoch,batch,delta_v,
             log.flush()
             optimizer.zero_grad()
             total_loss.backward()
-            clip_grad_value_(model.parameters(),clip_value=4.)
+            clip_grad_value_(model.parameters(),clip_value=5.)
             optimizer.step()
         
     torch.save(model,os.path.join('./logs/models','model_{}.pkl'.format(start_time)))
@@ -77,13 +77,13 @@ if __name__=='__main__':
     ap=argparse.ArgumentParser() 
  
     ap.add_argument('-e','--epoch',default=10)#Epoch
-    ap.add_argument('-b','--batch',default=1)#Batch_size
+    ap.add_argument('-b','--batch',default=8)#Batch_size
     ap.add_argument('-dv','--delta_v',default=.5)#delta_v
     ap.add_argument('-dd','--delta_d',default=3)#delta_d
     ap.add_argument('-l','--learning_rate',default=5e-4)#learning_rate
     ap.add_argument('-o','--optimizer',default='Adam')#optimizer
     ap.add_argument('-d','--device',default='GPU')#training device
-    ap.add_argument('-t','--test_ratio',default=.2)
+    ap.add_argument('-t','--test_ratio',default=.1)
     #ap.add_argument('-cl','--class_weight',default=.5)
     #ap.add_argument()
     #ap.add_argument()
@@ -91,7 +91,7 @@ if __name__=='__main__':
     args=vars(ap.parse_args())
     
     train_indices,test_indices=split_dataset(args['test_ratio'])
-    data=build_sampler(TusimpleData('./data'),args['batch'],1,train_indices,test_indices)    
+    data=build_sampler(TusimpleData('./data',transform=Rescale((256,512))),args['batch'],1,train_indices,test_indices)    
     model=LaneNet()
     
     train(model,data,args['epoch'],args['batch'],
