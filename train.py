@@ -46,7 +46,7 @@ def train(model,data,epoch,batch,delta_v,
     model.to(device)
     model.train()
     params=model.parameters()
-    optimizer=torch.optim.Adam(params,lr=lr)
+    optimizer=torch.optim.Adam(params,lr=lr,eps=.1)
     start_time=int(time.time())
     log=open('./logs/loggings/LaneNet_{}.txt'.format(start_time),'w')
     for e_p in range(epoch):
