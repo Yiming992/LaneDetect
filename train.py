@@ -34,7 +34,7 @@ def compute_loss(predictions,embeddings,seg_mask,instance_mask,
     Variance=variance(delta_v,embeddings,instance_mask)
     Distance=distance(delta_d,embeddings,instance_mask)
     total_loss=seg_loss+Variance+Distance
-    return total_loss
+    return seg_loss
 
 
 def train(model,data,epoch,batch,delta_v,
