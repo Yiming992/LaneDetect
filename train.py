@@ -24,8 +24,8 @@ def split_dataset(test_ratio=0.2):
 def build_sampler(data,train_batch_size,test_batch_size,train_index,test_index):
     train_sampler=SubsetRandomSampler(train_index)
     test_sampler=SubsetRandomSampler(test_index)
-    train_loader=DataLoader(data,batch_size=train_batch_size,sampler=train_sampler)
-    test_loader=DataLoader(data,batch_size=test_batch_size,sampler=test_sampler)
+    train_loader=DataLoader(data,batch_size=train_batch_size,sampler=train_sampler,drop_last=True)
+    test_loader=DataLoader(data,batch_size=test_batch_size,sampler=test_sampler,drop_last=True)
     return {'train':train_loader,'test':test_loader}
 
 def compute_loss(predictions,embeddings,seg_mask,instance_mask,
@@ -46,7 +46,7 @@ def train(model,data,epoch,batch,delta_v,
     model.to(device)
     model.train()
     params=model.parameters()
-    optimizer=torch.optim.Adam(params,lr=lr,eps=.1)
+    optimizer=torch.optim.Adam(params,lr=lr)
     start_time=int(time.time())
     log=open('./logs/loggings/LaneNet_{}.txt'.format(start_time),'w')
     for e_p in range(epoch):
