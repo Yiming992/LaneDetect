@@ -77,6 +77,34 @@ def distance(delta_d,embeddings,labels):
         dis_loss+=loss/(num_clusters*(num_clusters-1))
     return dis_loss/num_samples
 
+def reg(embeddings,labels):
+    vals=[255,205,155,105,55]
+    num_samples=labels.size(0)
+    reg_loss=torch.tensor(0.).cuda()
+    for i in range(num_samples):
+        sample_embedding=embeddings[i,:,:,:]
+        sample_label=labels[i,:,:]
+        num_clusters=len(sample_label.unique())-1
+        sample_label=sample_label.view(sample_label.size(0)*sample_label.size(1))
+        sample_embedding=sample_embedding.view(-1,sample_embedding.size(1)*sample_embedding.size(2))
+        loss=torch.tensor(0.).cuda()
+        for j in range(num_clusters):
+            indices=(sample_label==vals[j]).nonzero()
+            indices=indices.squeeze()
+            cluster_elements=torch.index_select(sample_embedding,1,indices)
+            mean_cluster=cluster_elements.mean(dim=1)
+            euclidean=torch.sqrt(torch.dot(mean_cluster,mean_cluster))
+            loss+=euclidean
+        reg_loss+=loss/num_clusters
+    return reg_loss/num_samples
+
+def instance_loss(delta_v,delta_d,embeddings,labels):
+    variance_loss=variance(delta_v,embeddings,labels)
+    distance_loss=distance(delta_d,embeddings,labels)
+    reg_loss=reg(embeddings,labels)
+    total_loss=variance_loss+distance_loss+.001*reg_loss
+    return total_loss,variance_loss,distance_loss,reg_loss
+
 ###损失函数用于车道线拟合
 def Hnet_loss():
     pass

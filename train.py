@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader,SubsetRandomSampler
 from Data import TusimpleData,Rescale
 from model import LaneNet
 from HNet import HNet
-from loss import Segmentation_loss,variance,distance,bi_weight
+from loss import Segmentation_loss,instance_loss,bi_weight
 import time
 import os
 import cv2
@@ -31,11 +31,9 @@ def build_sampler(data,train_batch_size,test_batch_size,train_index,test_index):
 def compute_loss(predictions,embeddings,seg_mask,instance_mask,
                  class_weight,delta_v,delta_d):
     seg_loss=Segmentation_loss(predictions,seg_mask,class_weight)
-    Variance=variance(delta_v,embeddings,instance_mask)
-    Distance=distance(delta_d,embeddings,instance_mask)
-    total_loss=seg_loss+Variance+Distance
-    return total_loss
-
+    total,Variance,Distance,_=instance_loss(delta_v,delta_d,embeddings,instance_mask)
+    total_loss=seg_loss+total
+    return Variance
 
 def train(model,data,epoch,batch,delta_v,
           delta_d,lr=3e-5,optimizer='Adam',mode='GPU'):
@@ -46,7 +44,7 @@ def train(model,data,epoch,batch,delta_v,
     model.to(device)
     model.train()
     params=model.parameters()
-    optimizer=torch.optim.Adam(params,lr=lr,eps=.1)
+    optimizer=torch.optim.Adam(params,lr=lr)
     start_time=int(time.time())
     log=open('./logs/loggings/LaneNet_{}.txt'.format(start_time),'w')
     for e_p in range(epoch):
@@ -76,7 +74,7 @@ def train(model,data,epoch,batch,delta_v,
 if __name__=='__main__':
     ap=argparse.ArgumentParser() 
  
-    ap.add_argument('-e','--epoch',default=10)#Epoch
+    ap.add_argument('-e','--epoch',default=30)#Epoch
     ap.add_argument('-b','--batch',default=8)#Batch_size
     ap.add_argument('-dv','--delta_v',default=.5)#delta_v
     ap.add_argument('-dd','--delta_d',default=3)#delta_d
