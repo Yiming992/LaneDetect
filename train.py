@@ -31,9 +31,9 @@ def build_sampler(data,train_batch_size,test_batch_size,train_index,test_index):
 def compute_loss(predictions,embeddings,seg_mask,instance_mask,
                  class_weight,delta_v,delta_d):
     seg_loss=Segmentation_loss(predictions,seg_mask,class_weight)
-    total,Variance,Distance,_=instance_loss(delta_v,delta_d,embeddings,instance_mask)
+    total,Variance,Distance,Reg=instance_loss(delta_v,delta_d,embeddings,instance_mask)
     total_loss=seg_loss+total
-    return Variance
+    return total,Variance,Distance,Reg
 
 def train(model,data,epoch,batch,delta_v,
           delta_d,lr=3e-5,optimizer='Adam',mode='GPU'):
@@ -58,14 +58,17 @@ def train(model,data,epoch,batch,delta_v,
             seg_mask=seg_mask.to(device)
             instance_mask=instance_mask.to(device)
             predictions,embeddings=model(input_data)
-            total_loss=compute_loss(predictions,embeddings,seg_mask,instance_mask,
+            total_loss,Variance,Distance,Reg=compute_loss(predictions,embeddings,seg_mask,instance_mask,
                                     class_weight,delta_v,delta_d)                               
             log.write('Steps:{}, Loss:{}\n'.format(batch_id*(e_p+1),total_loss))
             log.flush()
+            print('v:{},d:{},r:{}'.format(Variance,Distance,Reg))
             optimizer.zero_grad()
             total_loss.backward()
             clip_grad_value_(model.parameters(),clip_value=5.)
             optimizer.step()
+            #print(list(model.parameters())[0])
+            #print(list(model.parameters())[0].grad)
         
     torch.save(model,os.path.join('./logs/models','model_{}.pkl'.format(start_time)))
     log.close()
