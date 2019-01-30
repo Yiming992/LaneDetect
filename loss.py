@@ -27,13 +27,14 @@ def Segmentation_loss(predictions,label,class_weights):
 ####聚类损失函数
 ##[255,205,155,105,55,5]
 def variance(delta_v,embeddings,labels):
-    vals=[255,205,155,105,55]
+    #vals=[255,205,155,105,55]
     num_samples=labels.size(0)
     var_loss=torch.tensor(0.).cuda()
     for i in range(num_samples):
         sample_embedding=embeddings[i,:,:,:]
         sample_label=labels[i,:,:]
         num_clusters=len(sample_label.unique())-1
+        vals=sample_label.unique()
         sample_label=sample_label.view(sample_label.size(0)*sample_label.size(1))
         sample_embedding=sample_embedding.view(-1,sample_embedding.size(1)*sample_embedding.size(2))
         loss=torch.tensor(0.).cuda()
@@ -51,7 +52,7 @@ def variance(delta_v,embeddings,labels):
     return var_loss/num_samples
 
 def distance(delta_d,embeddings,labels):
-    vals=[255,205,155,105,55]
+    #vals=[255,205,155,105,55]
     num_samples=labels.size(0)
     dis_loss=torch.tensor(0.).cuda()
     for i in range(num_samples):
@@ -59,6 +60,7 @@ def distance(delta_d,embeddings,labels):
         sample_embedding=embeddings[i,:,:,:]
         sample_label=labels[i,:,:]
         num_clusters=len(sample_label.unique())-1
+        vals=sample_label.unique()
         sample_label=sample_label.view(sample_label.size(0)*sample_label.size(1))
         sample_embedding=sample_embedding.view(-1,sample_embedding.size(1)*sample_embedding.size(2))
         loss=torch.tensor(0.).cuda()
@@ -81,13 +83,14 @@ def distance(delta_d,embeddings,labels):
     return dis_loss/num_samples
 
 def reg(embeddings,labels):
-    vals=[255,205,155,105,55]
+    #vals=[255,205,155,105,55]
     num_samples=labels.size(0)
     reg_loss=torch.tensor(0.).cuda()
     for i in range(num_samples):
         sample_embedding=embeddings[i,:,:,:]
         sample_label=labels[i,:,:]
         num_clusters=len(sample_label.unique())-1
+        vals=sample_label.unique()
         sample_label=sample_label.view(sample_label.size(0)*sample_label.size(1))
         sample_embedding=sample_embedding.view(-1,sample_embedding.size(1)*sample_embedding.size(2))
         loss=torch.tensor(0.).cuda()
