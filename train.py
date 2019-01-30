@@ -24,8 +24,8 @@ def split_dataset(test_ratio=0.2):
 def build_sampler(data,train_batch_size,test_batch_size,train_index,test_index):
     train_sampler=SubsetRandomSampler(train_index)
     test_sampler=SubsetRandomSampler(test_index)
-    train_loader=DataLoader(data,batch_size=train_batch_size,sampler=train_sampler)
-    test_loader=DataLoader(data,batch_size=test_batch_size,sampler=test_sampler)
+    train_loader=DataLoader(data,batch_size=train_batch_size,sampler=train_sampler,drop_last=True)
+    test_loader=DataLoader(data,batch_size=test_batch_size,sampler=test_sampler,drop_last=True)
     return {'train':train_loader,'test':test_loader}
 
 def compute_loss(predictions,embeddings,seg_mask,instance_mask,
@@ -78,7 +78,7 @@ if __name__=='__main__':
     ap=argparse.ArgumentParser() 
  
     ap.add_argument('-e','--epoch',default=30)#Epoch
-    ap.add_argument('-b','--batch',default=8)#Batch_size
+    ap.add_argument('-b','--batch',default=16)#Batch_size
     ap.add_argument('-dv','--delta_v',default=.5)#delta_v
     ap.add_argument('-dd','--delta_d',default=3)#delta_d
     ap.add_argument('-l','--learning_rate',default=5e-4)#learning_rate
