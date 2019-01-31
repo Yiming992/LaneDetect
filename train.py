@@ -11,6 +11,7 @@ import os
 import cv2
 import random
 from torch.nn.utils import clip_grad_value_
+from torch.nn import DataParallel
 
 def split_dataset(test_ratio=0.2):
     dataset_size=len(os.listdir(os.path.join('./data','LaneImages')))
@@ -39,9 +40,13 @@ def train(model,data,epoch,batch,delta_v,
           delta_d,lr=3e-5,optimizer='Adam',mode='GPU'):
     if mode=='GPU':
         device=torch.device('cuda',0)
+        model.to(device)
+    elif mode=='Parallel':
+        num_gpu=torch.cuda.device_count()
+        model=DataParallel(model,device_ids=[i for i in range(num_gpu)])
     else:
         device=torch.device('cpu',0)
-    model.to(device)
+        model.to(device)
     model.train()
     params=model.parameters()
     optimizer=torch.optim.Adam(params,lr=lr)
