@@ -44,6 +44,7 @@ def train(model,data,epoch,batch,delta_v,
     elif mode=='Parallel':
         num_gpu=torch.cuda.device_count()
         model=DataParallel(model,device_ids=[i for i in range(num_gpu)])
+        model=model.cuda()
     else:
         device=torch.device('cpu',0)
         model.to(device)
@@ -57,14 +58,15 @@ def train(model,data,epoch,batch,delta_v,
             input_data=batch_data[0]
             seg_mask=batch_data[1]
             instance_mask=batch_data[2]
-
+           
+            s=time.time()
             class_weight=bi_weight(seg_mask,batch)          
-            input_data=input_data.to(device)
-            seg_mask=seg_mask.to(device)
-            instance_mask=instance_mask.to(device)
+            input_data=input_data.cuda()
+            seg_mask=seg_mask.cuda()
+            instance_mask=instance_mask.cuda()
             predictions,embeddings=model(input_data)
             total_loss,Variance,Distance,Reg=compute_loss(predictions,embeddings,seg_mask,instance_mask,
-                                    class_weight,delta_v,delta_d)                               
+                                    class_weight,delta_v,delta_d)                              
             log.write('Steps:{}, Loss:{}\n'.format(batch_id*(e_p+1),total_loss))
             log.flush()
             #print('v:{},d:{},r:{}'.format(Variance,Distance,Reg))
@@ -72,17 +74,17 @@ def train(model,data,epoch,batch,delta_v,
             total_loss.backward()
             clip_grad_value_(model.parameters(),clip_value=5.)
             optimizer.step()
+            e=time.time()
+            print('step time:{}'.format(e-s))
             #print(list(model.parameters())[0])
-            #print(list(model.parameters())[0].grad)
-        
-    torch.save(model,os.path.join('./logs/models','model_{}.pkl'.format(start_time)))
+            #print(list(model.parameters())[0].grad)        
+    torch.save(model.state_dic(),os.path.join('./logs/models','model_{}.pkl'.format(start_time)))
     log.close()
-
             
 if __name__=='__main__':
     ap=argparse.ArgumentParser() 
  
-    ap.add_argument('-e','--epoch',default=30)#Epoch
+    ap.add_argument('-e','--epoch',default=64)#Epoch
     ap.add_argument('-b','--batch',default=16)#Batch_size
     ap.add_argument('-dv','--delta_v',default=.5)#delta_v
     ap.add_argument('-dd','--delta_d',default=3)#delta_d
@@ -102,7 +104,7 @@ if __name__=='__main__':
     
     train(model,data,args['epoch'],args['batch'],
           args['delta_v'],args['delta_d'],args['learning_rate'],
-          args['optimizer'])
+          optimizer=args['optimizer'],mode=args['device'])
      
 
 

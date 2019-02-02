@@ -130,7 +130,7 @@ class SharedEncoder(nn.Module):
                                )
         self.tail=RepeatBlock(128,128)
 
-    def forward(self,x):
+    def forward(self,x): 
         pool_indices={}
         x=self.initial(x)
         x,index=self.downsample['downsample_1'](x)
