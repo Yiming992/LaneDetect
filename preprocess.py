@@ -54,18 +54,7 @@ class CreateTusimpleData():
   
                 cv2.imwrite(os.path.join('./data/train_binary',new_name),img_binary)
                 cv2.imwrite(os.path.join('./data/cluster',new_name),img_cluster)
-
-
-class Rescale():
-
-    def __init__(self,output_size,method='CV_INTER_AREA'):
-        self.size=output_size
-        self.method=method
-
-    def __call__(self,sample):
-        return cv2.resize(sample,self.size,interpolation=self.method)
-        
-        
+      
 if __name__=='__main__':
 
     creator=CreateTusimpleData(TUSIMPLE_PATH,5)

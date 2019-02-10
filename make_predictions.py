@@ -5,3 +5,4 @@ import numpy
 import cv2
 
 ### To be completed
+if __name__=='__main__':
