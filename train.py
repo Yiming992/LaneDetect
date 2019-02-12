@@ -37,17 +37,24 @@ def compute_loss(predictions,embeddings,seg_mask,instance_mask,
     return total_loss,Variance,Distance,Reg
 
 def train(model,data,epoch,batch,delta_v,
-          delta_d,lr=3e-5,optimizer='Adam',mode='GPU'):
+          delta_d,lr=3e-5,optimizer='Adam',mode='GPU',
+          continue_train=False,save=None):
     if mode=='GPU':
         device=torch.device('cuda',0)
-        model.to(device)
+        if continue_train==True:
+            model.load_state_dict(torch.load(save))
+        model=model.to(device)
     elif mode=='Parallel':
         num_gpu=torch.cuda.device_count()
         model=DataParallel(model,device_ids=[i for i in range(num_gpu)])
+        if continue_train==True:
+            model.load_state_dict(torch.load(save))
         model=model.cuda()
     else:
         device=torch.device('cpu',0)
-        model.to(device)
+        if continue_train==True:
+            model.load_state_dict(torch.load(save))
+        model=model.to(device)
     model.train()
     params=model.parameters()
     optimizer=torch.optim.Adam(params,lr=lr)
@@ -86,7 +93,7 @@ def train(model,data,epoch,batch,delta_v,
 if __name__=='__main__':
     ap=argparse.ArgumentParser() 
  
-    ap.add_argument('-e','--epoch',default=30)#Epoch
+    ap.add_argument('-e','--epoch',default=60)#Epoch
     ap.add_argument('-b','--batch',default=32)#Batch_size
     ap.add_argument('-dv','--delta_v',default=.5)#delta_v
     ap.add_argument('-dd','--delta_d',default=3)#delta_d
@@ -94,7 +101,8 @@ if __name__=='__main__':
     ap.add_argument('-o','--optimizer',default='Adam')#optimizer
     ap.add_argument('-d','--device',default='GPU')#training device
     ap.add_argument('-t','--test_ratio',default=.1)
-    ap.add_argument('-s','--stage',default='new')
+    ap.add_argument('-ct','--continue_train',default='No')
+    ap.add_argument('-s','--save',default=None)
     #ap.add_argument('-cl','--class_weight',default=.5)
     #ap.add_argument()
     #ap.add_argument()
@@ -103,18 +111,17 @@ if __name__=='__main__':
     
     train_indices,test_indices=split_dataset(args['test_ratio'])
     data=build_sampler(TusimpleData('./data',transform=Rescale((256,512))),args['batch'],1,train_indices,test_indices)    
-    
-    if args['stage']=='new':
-        model=LaneNet()
+    model=LaneNet()
+
+    if args['continue_train']=='Yes':
+        train(model,data,args['epoch'],args['batch'],
+              args['delta_v'],args['delta_d'],args['learning_rate'],
+              optimizer=args['optimizer'],mode=args['device'],continue_train=True,
+              save=args['save'])
     else:
-        model_file='model_1549814949_6.pkl'
-        model=LaneNet()
-        weight_dict=torch.load(os.path.join('./logs/models/',model_file))
-        model.load_state_dict(weight_dict.state_dict())
-    
-    train(model,data,args['epoch'],args['batch'],
-          args['delta_v'],args['delta_d'],args['learning_rate'],
-          optimizer=args['optimizer'],mode=args['device'])
+        train(model,data,args['epoch'],args['batch'],
+              args['delta_v'],args['delta_d'],args['learning_rate'],
+              optimizer=args['optimizer'],mode=args['device'])
      
 
 
