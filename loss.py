@@ -4,6 +4,7 @@ import os
 from collections import defaultdict
 import torch.nn as nn
 import cv2
+from HNet import HNet
 
 ###bounded inverse weights
 def bi_weight(data,batch):
@@ -115,7 +116,3 @@ def instance_loss(delta_v,delta_d,embeddings,labels):
     reg_loss=reg(embeddings,labels)
     total_loss=variance_loss+distance_loss+.001*reg_loss
     return total_loss,variance_loss,distance_loss,reg_loss
-
-###损失函数用于车道线拟合
-def Hnet_loss():
-    pass
