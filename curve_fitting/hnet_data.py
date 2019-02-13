@@ -39,14 +39,16 @@ class Hnet_Data:
             unique_lanes=np.unique(lane_image)
             data['num_lane']=len(unique_lanes)-1
             
-            coord={}
+            coord=defaultdict(lambda:[])
             for index,v in enumerate(unique_lanes):
                 if v==0:
                     continue
                 else:
                     coordinates=np.where(lane_image==v)
                     for i in range(coordinates.shape[1]):
-                        coord[((coordinates[0,i],coordinates[1,i]))
+                        coord['{}'.format(index)].append((coordinates[0,i],coordinates[1,i]))
+            data['lane']=coord
+            yield data
                     
 
 
