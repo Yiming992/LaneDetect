@@ -34,7 +34,7 @@
 ![image](./Images/LaneNet_Architecture.PNG)
 
 ## 样例
-![](./Images/Webp.net-gifmaker.gif) ![](./Images/Webp.net-gifmaker_1.gif)
+![](./Images/Webp.net-gifmaker.gif) |![](./Images/Webp.net-gifmaker_1.gif)
 
 ## 项目细节及进度
 - [x] LaneNet 模型构建
