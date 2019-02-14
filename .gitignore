@@ -13,7 +13,7 @@ __pycache__/
 *.ipynb
 # C extensions
 *.so
-
+/test_result
 # Distribution / packaging
 .Python
 build/

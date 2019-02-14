@@ -1,9 +1,10 @@
 ####Inference阶段的聚类算法
 import numpy as np 
 from sklearn.cluster import MeanShift,estimate_bandwidth
+import cv2
 class lane_cluster():
 
-    def __init__(self,bandwidth,image,embedding,binary_mask):
+    def __init__(self,bandwidth,image,embedding,binary_mask,mode='line'):
         self.color=[np.array([255,0,0]),
                     np.array([0,255,0]),
                     np.array([0,0,255]),
@@ -17,6 +18,7 @@ class lane_cluster():
         self.bandwidth=bandwidth
         self.embedding=embedding
         self.binary=binary_mask
+        self.mode=mode
 
     def _get_lane_area(self):        
         idx=np.where(self.binary==1)
@@ -33,13 +35,28 @@ class lane_cluster():
 
     def _get_instance_masks(self):
         lane_area,lane_idx=self._get_lane_area()
-        print(self.binary.shape)
         instance_mask=self.image
 
         centers,labels=self._cluster(lane_area)
-        for index,label in enumerate(labels):
-            instance_mask[lane_idx[index][0],lane_idx[index][1],:]=self.color[label]
-        return instance_mask,labels
+        num_cluster=centers.shape[0]
+        lane_idx=np.array(lane_idx)
+
+        if not self.mode=='line':
+            for index,label in enumerate(labels):
+                instance_mask[lane_idx[index][0],lane_idx[index][1],:]=self.color[label]
+            return instance_mask
+
+        for index,label in enumerate(range(num_cluster)):
+            pos=np.where(labels==label)
+            coords=lane_idx[pos]
+            coords=np.flip(coords,axis=1)
+            coords=np.array([coords])
+
+            color_map=(int(self.color[index][0]),
+                       int(self.color[index][1]),
+                       int(self.color[index][2]))
+            cv2.polylines(instance_mask,coords,True,color_map,2)
+        return instance_mask
    
     def __call__(self):
         return self._get_instance_masks()
