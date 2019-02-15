@@ -1,3 +1,5 @@
+import sys
+sys.path.append('../')
 import os 
 import cv2
 import torch
@@ -5,20 +7,21 @@ import numpy as np
 import sys 
 from Data import clean_values
 from collections import defaultdict
-
-sys.path.append('../')
+from Data import clean_values
 
 class Hnet_Data:
-    def __init__(self,image_path,lane_path,ranodm_permute=True):
+    def __init__(self,image_path,lane_path,random_permute=True):
         self.img_path=image_path
         self.lane_path=lane_path
         self.permute=random_permute
     
     @staticmethod
-    def _imread(image_path):
+    def _imread(image_path,clean=True):
         image=cv2.imread(image_path,cv2.IMREAD_UNCHANGED)
         image=cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
         image=cv2.resize(image,(256,512))
+        if not clean:
+            image=clean_values(image)
         return image    
     
     def fetch(self):
@@ -30,7 +33,7 @@ class Hnet_Data:
             data={}
             image=_imread(os.path.join(self.path,f))
             lane_name=f.split('.')[0]
-            lane_image=_imread(os.path.join(self.lane_path,lane_name+'.png'))
+            lane_image=_imread(os.path.join(self.lane_path,lane_name+'.png'),clean=False)
             image=image.transpose([2,0,1])
             image=image[np.newaxis,:,:,:]
             image=torch.tensor(image)
