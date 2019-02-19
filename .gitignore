@@ -110,3 +110,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+CPP_Model
+./CPP_Model
+./cpp_inference

@@ -1,10 +1,10 @@
 ####Inference阶段的聚类算法
 import numpy as np 
-from sklearn.cluster import MeanShift,estimate_bandwidth
+from sklearn.cluster import MeanShift,DBSCAN,estimate_bandwidth
 import cv2
 class lane_cluster():
 
-    def __init__(self,bandwidth,image,embedding,binary_mask,mode='line'):
+    def __init__(self,bandwidth,image,embedding,binary_mask,mode='line',method='Meanshift'):
         self.color=[np.array([255,0,0]),
                     np.array([0,255,0]),
                     np.array([0,0,255]),
@@ -19,6 +19,7 @@ class lane_cluster():
         self.embedding=embedding
         self.binary=binary_mask
         self.mode=mode
+        self.method=method
 
     def _get_lane_area(self):        
         idx=np.where(self.binary==1)
@@ -30,15 +31,18 @@ class lane_cluster():
         return np.array(lane_area),lane_idx
 
     def _cluster(self,prediction):
-        clustering=MeanShift(bandwidth=self.bandwidth,bin_seeding=True).fit(prediction)
-        return clustering.cluster_centers_,clustering.labels_
+        if self.method=='Meanshift':
+            clustering=MeanShift(bandwidth=self.bandwidth,bin_seeding=True).fit(prediction)
+        elif self.method=='DBSCAN':
+            clustering=DBSCAN().fit(prediction)
+        return clustering.labels_
 
     def _get_instance_masks(self):
         lane_area,lane_idx=self._get_lane_area()
         instance_mask=self.image
 
-        centers,labels=self._cluster(lane_area)
-        num_cluster=centers.shape[0]
+        labels=self._cluster(lane_area)
+        num_cluster=len(set(labels))
         lane_idx=np.array(lane_idx)
 
         if not self.mode=='line':
