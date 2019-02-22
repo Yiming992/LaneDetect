@@ -9,8 +9,6 @@ def create_prediction(model,image):
     coefficient=model(image)
     pass
 
-
-
 if __name__=='__main__':
 
     ap=argparse.ArgumentParser()

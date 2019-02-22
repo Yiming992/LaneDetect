@@ -4,7 +4,6 @@ import torch
 from torch.utils.data import DataLoader,SubsetRandomSampler
 from Data import TusimpleData,Rescale
 from model import LaneNet
-from HNet import HNet
 from loss import Segmentation_loss,instance_loss,bi_weight
 import time
 import os
