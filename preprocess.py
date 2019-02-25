@@ -31,6 +31,10 @@ class CreateTusimpleData():
             for entry in data:
                 height=entry['h_samples']
                 width=entry['lanes']
+                for index,w in enumerate(width):
+                    counter=list(set(w))
+                    if counter[0]==-2 and len(counter)==1:
+                        del width[index]
                 clip=entry['raw_file']
                 img=cv2.imread(os.path.join(self.tusimple,clip))
                 cv2.imwrite(os.path.join('./data/LaneImages','_'.join(clip.split('/')[1:])),img)

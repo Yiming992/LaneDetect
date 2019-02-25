@@ -4,7 +4,7 @@ import os
 from collections import defaultdict
 import torch.nn as nn
 import cv2
-from HNet import HNet
+
 
 ###bounded inverse weights
 def bi_weight(data,batch):
@@ -65,13 +65,11 @@ def distance(delta_d,embeddings,labels):
         sample_label=sample_label.view(sample_label.size(0)*sample_label.size(1))
         sample_embedding=sample_embedding.view(-1,sample_embedding.size(1)*sample_embedding.size(2))
         loss=torch.tensor(0.).cuda()
-        #print('distance {}'.format(num_clusters))
         for j in range(num_clusters):
             indices=(sample_label==vals[j]).nonzero()
             indices=indices.squeeze()
             cluster_elements=torch.index_select(sample_embedding,1,indices)
             mean_cluster=cluster_elements.mean(dim=1)
-            #print('d:{}'.format(mean_cluster))
             clusters.append(mean_cluster)
         for index in range(num_clusters):
             for idx,cluster in enumerate(clusters):
@@ -101,8 +99,7 @@ def reg(embeddings,labels):
             indices=indices.squeeze()
             cluster_elements=torch.index_select(sample_embedding,1,indices)
             mean_cluster=cluster_elements.mean(dim=1)
-            #print('mean:{}'.format(mean_cluster))
-            euclidean=torch.sum(torch.abs(mean_cluster))#torch.sqrt(torch.dot(mean_cluster,mean_cluster))
+            euclidean=torch.sum(torch.abs(mean_cluster))
             if torch.isnan(euclidean):
                 print(cluster_elements)
                 print('labels:{},c:{}'.format(sample_label.unique(),num_clusters))

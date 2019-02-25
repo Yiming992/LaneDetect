@@ -78,7 +78,7 @@ if __name__=='__main__':
     ap=argparse.ArgumentParser() 
  
     ap.add_argument('-e','--epoch',default=50)#Epoch
-    ap.add_argument('-b','--batch',default=8)#Batch_size
+    ap.add_argument('-b','--batch',default=2)#Batch_size
     ap.add_argument('-dv','--delta_v',default=.5)#delta_v
     ap.add_argument('-dd','--delta_d',default=3)#delta_d
     ap.add_argument('-l','--learning_rate',default=5e-4)#learning_rate

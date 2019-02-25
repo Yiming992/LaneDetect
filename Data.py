@@ -5,6 +5,7 @@ import cv2
 import torch
 import numpy as np
 
+########
 def clean_values(sample,target='binary'):
     H,W=sample.shape
     if target=='binary':
@@ -52,9 +53,9 @@ class TusimpleData(Dataset):
         if self.transform:
             lane_image=self.transform(lane_image)
             binary_label=self.transform(binary_label)
-            binary_label=clean_values(binary_label)
+            #binary_label=clean_values(binary_label)
             instance_label=self.transform(instance_label)
-            instance_label=clean_values(instance_label,target='instance')
+            #instance_label=clean_values(instance_label,target='instance')
         
         binary_label=binary_label/255
         lane_image=np.transpose(lane_image,(2,0,1))
