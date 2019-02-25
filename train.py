@@ -3,12 +3,8 @@ import numpy as np
 import torch 
 from torch.utils.data import DataLoader,SubsetRandomSampler
 from Data import TusimpleData,Rescale
-<<<<<<< HEAD
-from model import LaneNet
-=======
 from model1 import LaneNet
 from HNet import HNet
->>>>>>> d36b553c9bf311ed1bff2cc988c4338a6af43c12
 from loss import Segmentation_loss,instance_loss,bi_weight
 import time
 import os
@@ -92,59 +88,29 @@ def train(model,data,epoch,batch,delta_v,
             e=time.time()
             print('step time:{}'.format(e-s))
             #print(list(model.parameters())[0])
-<<<<<<< HEAD
-            #print(list(model.parameters())[0].grad)
-        
-        torch.save(model,os.path.join('./logs/models','model_{}_{}.pkl'.format(start_time,e_p)))
-=======
             #print(list(model.parameters())[0].grad)        
         torch.save(model.state_dict(),os.path.join('./logs/models','model_1__{}_{}.pkl'.format(start_time,e_p)))
->>>>>>> d36b553c9bf311ed1bff2cc988c4338a6af43c12
     log.close()
             
 if __name__=='__main__':
     ap=argparse.ArgumentParser() 
  
-<<<<<<< HEAD
-    ap.add_argument('-e','--epoch',default=50)#Epoch
-    ap.add_argument('-b','--batch',default=2)#Batch_size
-=======
     ap.add_argument('-e','--epoch',default=100)#Epoch
     ap.add_argument('-b','--batch',default=32)#Batch_size
->>>>>>> d36b553c9bf311ed1bff2cc988c4338a6af43c12
     ap.add_argument('-dv','--delta_v',default=.5)#delta_v
     ap.add_argument('-dd','--delta_d',default=4)#delta_d
     ap.add_argument('-l','--learning_rate',default=5e-4)#learning_rate
     ap.add_argument('-o','--optimizer',default='Adam')#optimizer
     ap.add_argument('-d','--device',default='GPU')#training device
     ap.add_argument('-t','--test_ratio',default=.1)
-<<<<<<< HEAD
-    ap.add_argument('-s','--stage',default='new')
-=======
     ap.add_argument('-ct','--continue_train',default='No')
     ap.add_argument('-s','--save',default=None)
->>>>>>> d36b553c9bf311ed1bff2cc988c4338a6af43c12
     #ap.add_argument('-cl','--class_weight',default=.5)
     #ap.add_argument()
     #ap.add_argument()
     
     args=vars(ap.parse_args())
     train_indices,test_indices=split_dataset(args['test_ratio'])
-<<<<<<< HEAD
-    data=build_sampler(TusimpleData('./data',transform=Rescale((256,512))),args['batch'],1,train_indices,test_indices)
-    
-    if args['stage']=='new':  
-        model=LaneNet()
-    else:
-        model_file='model_1548830895.pkl'
-        model=LaneNet()
-        weight_dict=torch.load(os.path.join('./logs/models/',model_file))
-        model.load_state_dict(weight_dict.state_dict())
- 
-    train(model,data,args['epoch'],args['batch'],
-          args['delta_v'],args['delta_d'],args['learning_rate'],
-          args['optimizer'])
-=======
     data=build_sampler(TusimpleData('./data',transform=Rescale((256,512))),args['batch'],1,train_indices,test_indices)    
     model=LaneNet()
 
@@ -157,7 +123,6 @@ if __name__=='__main__':
         train(model,data,args['epoch'],args['batch'],
               args['delta_v'],args['delta_d'],args['learning_rate'],
               optimizer=args['optimizer'],mode=args['device'])
->>>>>>> d36b553c9bf311ed1bff2cc988c4338a6af43c12
      
 
 

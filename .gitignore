@@ -1,11 +1,14 @@
 
 .vscode/
 *.pyc
+/data
 data/train_binary/
 data/cluster/
 data/
 train_set/
 logs/
+*.png
+*.jpg
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
