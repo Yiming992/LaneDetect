@@ -3,7 +3,7 @@ import numpy as np
 import torch 
 from torch.utils.data import DataLoader,SubsetRandomSampler
 from Data import TusimpleData,Rescale
-from model import LaneNet
+from model1 import LaneNet
 from HNet import HNet
 from loss import Segmentation_loss,instance_loss,bi_weight
 import time
@@ -62,19 +62,20 @@ def train(model,data,epoch,batch,delta_v,
     log=open('./logs/loggings/LaneNet_{}.txt'.format(start_time),'w')
     step=0
     for e_p in range(epoch):
-        for batch_id,batch_data in enumerate(data['train']):
+        for batch_data in data['train']:
+            s=time.time()
             input_data=batch_data[0]
             seg_mask=batch_data[1]
             instance_mask=batch_data[2]
            
-            s=time.time()
+            
             class_weight=bi_weight(seg_mask,batch)          
             input_data=input_data.cuda()
             seg_mask=seg_mask.cuda()
             instance_mask=instance_mask.cuda()
             predictions,embeddings=model(input_data)
             total_loss,Variance,Distance,Reg=compute_loss(predictions,embeddings,seg_mask,instance_mask,
-                                    class_weight,delta_v,delta_d)                              
+                                                          class_weight,delta_v,delta_d)                              
             log.write('Steps:{}, Loss:{}\n'.format(step,total_loss))
             log.flush()
             #print('v:{},d:{},r:{}'.format(Variance,Distance,Reg))
@@ -87,16 +88,16 @@ def train(model,data,epoch,batch,delta_v,
             print('step time:{}'.format(e-s))
             #print(list(model.parameters())[0])
             #print(list(model.parameters())[0].grad)        
-        torch.save(model.state_dict(),os.path.join('./logs/models','model_{}_{}.pkl'.format(start_time,e_p)))
+        torch.save(model.state_dict(),os.path.join('./logs/models','model_1__{}_{}.pkl'.format(start_time,e_p)))
     log.close()
             
 if __name__=='__main__':
     ap=argparse.ArgumentParser() 
  
-    ap.add_argument('-e','--epoch',default=60)#Epoch
+    ap.add_argument('-e','--epoch',default=100)#Epoch
     ap.add_argument('-b','--batch',default=32)#Batch_size
     ap.add_argument('-dv','--delta_v',default=.5)#delta_v
-    ap.add_argument('-dd','--delta_d',default=3)#delta_d
+    ap.add_argument('-dd','--delta_d',default=4)#delta_d
     ap.add_argument('-l','--learning_rate',default=5e-4)#learning_rate
     ap.add_argument('-o','--optimizer',default='Adam')#optimizer
     ap.add_argument('-d','--device',default='GPU')#training device
