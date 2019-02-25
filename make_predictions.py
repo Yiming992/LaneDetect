@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 from clustering import lane_cluster 
+=======
+from clustering import cluster 
+>>>>>>> d36b553c9bf311ed1bff2cc988c4338a6af43c12
 from model import LaneNet
 import torch
 import numpy as np
 import cv2
+<<<<<<< HEAD
 import argparse
 from torch.nn import DataParallel
 import os
@@ -76,3 +81,22 @@ if __name__=='__main__':
 
 
 
+=======
+import os
+
+### To be completed
+if __name__=='__main__':
+
+    saved_model=os.listdir('./logs/models')
+    model=LaneNet()
+    =torch.load()
+
+
+
+
+
+
+
+
+
+>>>>>>> d36b553c9bf311ed1bff2cc988c4338a6af43c12
