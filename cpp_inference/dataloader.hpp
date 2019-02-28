@@ -3,10 +3,13 @@
 
 #include <iostream>
 #include <string>
+#include <torch/torch.h>
 #include "opencv2/opencv.hpp"
 
-using namespace std ;
+
+using namespace std;
 using namespace cv;
+using namespace torch
 
 class Dataloader
 {
@@ -15,6 +18,7 @@ class Dataloader
     int width;
     int height;
 
-    Mat preprocess(string s);
+    Mat preprocess(string,string);
+    Tensor input_convert(Mat);
 }
 #endif 
