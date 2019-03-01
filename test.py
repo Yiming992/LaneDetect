@@ -8,7 +8,7 @@ import torch
 
 SAVE_PATH='./test_result'
 IMAGE_PATH='./train_set/clips/0313-1/180'
-MODEL_SAVE='./logs/models/model_1_1551237689_100.pkl'
+MODEL_SAVE='./logs/models/model_1_1551422645_99.pkl'
 
 if __name__=='__main__':
 

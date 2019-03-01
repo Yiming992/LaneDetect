@@ -89,7 +89,7 @@ def train(model,data,epoch,batch,delta_v,
             print('step time:{}'.format(e-s))
             #print(list(model.parameters())[0])
             #print(list(model.parameters())[0].grad)        
-        torch.save(model.state_dict(),os.path.join('./logs/models','model_1__{}_{}.pkl'.format(start_time,e_p)))
+        torch.save(model.state_dict(),os.path.join('./logs/models','model_1_{}_{}.pkl'.format(start_time,e_p)))
     log.close()
             
 if __name__=='__main__':
@@ -97,9 +97,9 @@ if __name__=='__main__':
  
     ap.add_argument('-e','--epoch',default=100)#Epoch
     ap.add_argument('-b','--batch',default=32)#Batch_size
-    ap.add_argument('-dv','--delta_v',default=.5)#delta_v
+    ap.add_argument('-dv','--delta_v',default=.2)#delta_v
     ap.add_argument('-dd','--delta_d',default=4)#delta_d
-    ap.add_argument('-l','--learning_rate',default=5e-4)#learning_rate
+    ap.add_argument('-l','--learning_rate',default=1e-4)#learning_rate
     ap.add_argument('-o','--optimizer',default='Adam')#optimizer
     ap.add_argument('-d','--device',default='GPU')#training device
     ap.add_argument('-t','--test_ratio',default=.1)
