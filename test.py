@@ -1,7 +1,7 @@
 import os 
 import numpy as np 
 import cv2
-from model import LaneNet 
+from model1 import LaneNet 
 from torch.nn import DataParallel
 from clustering import lane_cluster
 import torch
@@ -43,7 +43,7 @@ if __name__=='__main__':
             os.mkdir('./test_result/binary')
         cv2.imwrite(os.path.join('./test_result/binary',i),binary_mask[1,:,:]*255)
 
-        threshold_mask=binary_mask[1,:,:]>.6
+        threshold_mask=binary_mask[1,:,:]>.5
         threshold_mask=threshold_mask.astype(np.float)
 
         cluster=lane_cluster(None,img,embedding.squeeze().data.cpu().numpy(),threshold_mask,mode='point',method='Meanshift')

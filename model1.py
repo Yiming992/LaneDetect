@@ -1,22 +1,17 @@
-'''input image size 512*256'''
 import torch
 import os
 import torch.nn as nn
 import torch.nn.functional as F 
 import numpy as np 
 import cv2
-'''
----------------------------------------------------------------------------------------------
-LaneNet based on paper 'Towards End-to-End Lane Detection: an Instance Segmentation Approach'
----------------------------------------------------------------------------------------------
-'''
+
 class Initial(nn.Module):
     def __init__(self):
         super(Initial,self).__init__()
         self.net=nn.ModuleList([nn.Sequential(nn.Conv2d(3,13,2,stride=2),
                                               nn.PReLU(),
                                               nn.BatchNorm2d(13)),
-                                nn.AdaptiveMaxPool2d((256,128))])
+                                nn.MaxPool2d(2)])
 
     def forward(self,x):
         y=x
@@ -41,7 +36,8 @@ class Bottleneck(nn.Module):
                                                            nn.PReLU(),
                                                            nn.BatchNorm2d(output_c)),
                                     'dropout':nn.Dropout2d(p=P),
-                                    'Pooling':nn.AdaptiveMaxPool2d(pool_size,return_indices=True)})
+                                    'Pooling':nn.MaxPool2d(2),
+                                    '1*1':nn.Conv2d(input_c,output_c,1)})
 
         elif self.Type.split()[0]=='asymmetric':
             self.net=nn.ModuleDict({'block1':nn.Sequential(nn.Conv2d(input_c,input_c//ratio,1),
@@ -89,30 +85,27 @@ class Bottleneck(nn.Module):
                                                            nn.PReLU(),
                                                            nn.BatchNorm2d(output_c)),
                                     'block4':nn.Conv2d(input_c,output_c,1),
-                                    'unpooling':nn.MaxUnpool2d(2,stride=2),
+                                    #'unpooling':nn.MaxUnpool2d(2,stride=2),
                                     'dropout':nn.Dropout2d(p=P)})
 
-    def forward(self,x,pool_index=None):
+    def forward(self,x,prev=None):
         y=x
         if self.Type=='downsampling':
             x=self.net['block1'](x)
             x=self.net['block2'](x)
             x=self.net['block3'](x)
             x=self.net['dropout'](x)
-            y,index=self.net['Pooling'](y)
-            zero_pads=torch.zeros(x.size(0),x.size(1)-y.size(1),y.size(2),y.size(3)).cuda()
-            y=torch.cat([y,zero_pads],dim=1)
+            y=self.net['Pooling'](y)
+            y=self.net['1*1'](y)
 
-            return x+y,index
+            return x+y
         else:
             x=self.net['block1'](x)
             x=self.net['block2'](x)
             x=self.net['block3'](x)
             x=self.net['dropout'](x)
             if self.Type=='upsampling':
-                y=self.net['block4'](y)
-                y=self.net['unpooling'](y,pool_index)
-
+                return x+prev
             return x+y
 
 
@@ -130,16 +123,16 @@ class SharedEncoder(nn.Module):
                                )
         self.tail=RepeatBlock(128,128)
 
-    def forward(self,x): 
-        pool_indices={}
+    def forward(self,x):
+        prevs=[]
         x=self.initial(x)
-        x,index=self.downsample['downsample_1'](x)
-        pool_indices['downsample_1']=index
+        prevs.append(x)
+        x=self.downsample['downsample_1'](x)
+        prevs.append(x)
         x=self.net(x)
-        x,index=self.downsample['downsample_2'](x)
-        pool_indices['downsample_2']=index
+        x=self.downsample['downsample_2'](x)
         x=self.tail(x)
-        return x,pool_indices
+        return x,prevs
 
 
 '''Repeat Block'''
@@ -166,11 +159,11 @@ class Decoder(nn.Module):
         self.end=nn.Sequential(nn.ConvTranspose2d(output_c,final,2,stride=2))                             
         #self.add_module('Bottleneck_5',Bottleneck(output_c,output_c,0.1,Type='normal'))
     
-    def forward(self,x,pool_indices):
-        x=self.upsample['upsample_1'](x,pool_index=pool_indices['downsample_2'])
+    def forward(self,x,y):
+        x=self.upsample['upsample_1'](x,y[1])
         x=self.net['normal_1'](x)
         x=self.net['normal_2'](x)
-        x=self.upsample['upsample_2'](x,pool_index=pool_indices['downsample_1'])
+        x=self.upsample['upsample_2'](x,y[0])
         x=self.end(x)
         return x
 
@@ -182,9 +175,9 @@ class Embedding(nn.Module):
         self.net=nn.ModuleDict({'repeat':RepeatBlock(128,128),
                                 'decoder':Decoder(128,64,16,embed_size)})
         
-    def forward(self,x,pool_indices=None):
+    def forward(self,x,prevs):
         x=self.net['repeat'](x)
-        x=self.net['decoder'](x,pool_indices)
+        x=self.net['decoder'](x,prevs)
         return x
 
 '''Segmentation'''
@@ -194,9 +187,9 @@ class Segmentation(nn.Module):
         self.net=nn.ModuleDict({'repeat':RepeatBlock(128,128),
                                 'decoder':Decoder(128,64,16,2)})
 
-    def forward(self,x,pool_indices=None):
+    def forward(self,x,prevs):
         x=self.net['repeat'](x)
-        x=self.net['decoder'](x,pool_indices)
+        x=self.net['decoder'](x,prevs)
         return x
 
 '''LaneNet'''
@@ -208,16 +201,10 @@ class LaneNet(nn.Module):
                                 'Segmentation':Segmentation()})
         
     def forward(self,x):
-        x,pool_indices=self.net['Shared_Encoder'](x)
-        embeddings=self.net['Embedding'](x,pool_indices)
-        segmentation=self.net['Segmentation'](x,pool_indices)
+        x,prevs=self.net['Shared_Encoder'](x)
+        embeddings=self.net['Embedding'](x,prevs)
+        segmentation=self.net['Segmentation'](x,prevs)
         return segmentation,embeddings
 
 if __name__=='__main__':
     model=LaneNet()
-    
-        
-    
-
-
-        
