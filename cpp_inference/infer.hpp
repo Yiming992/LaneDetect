@@ -32,7 +32,9 @@ namespace inference {
     class NV_rt{
 
         public:
-            void onnx2rt();
+            void onnx2rt(const string& modelFile,
+                         unsigned int  batch_size,
+                         IHostMemory*& trtModelStream);
 
             void doinference();
 

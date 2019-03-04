@@ -1,6 +1,11 @@
 #include "infer.hpp"
+#include "common.h"
+#include "cuda_runtime_api.h"
+#include "NvOnnxParser.h"
 
 using namespace inference;
+
+static Logger gLogger;
 
 Mat Input_Reader::read(string f){
     Mat img_array=imread(f,IMREAD_UNCHANGED);
@@ -15,8 +20,15 @@ Mat Input_Reader::process(int w,int h,Mat t){
     return resized_img;
 }
 
-void NV_rt::onnx2rt(){
+void NV_rt::onnx2rt(const string& modelFile,
+                    unsigned int batch_size,
+                    IHostMemory*& trtModelStream){
 
+                        int verbosity = (int) nvinfer1::ILogger::Severity::kWARNING;
+                        IBuilder* builder=createInferBuilder(gLogger);
+                        nvinfer1::INetworkDefinition* network=builder->createNetwork();
+
+                        auto parser = nvonnxparser::createParser(*network,gLogger);
 }
 
 void NV_rt::doinference(){
