@@ -5,28 +5,22 @@
 #include "opencv2/opencv.hpp"
 #include "Nvinfer.h"
 
-
-using namespace std; 
-using namespace cv;
-using namespace nvinfer1;
-
 namespace inference {
 
     class Input_Reader {
         int width;
         int height;
-
-        string filepath;
-        
-        Mat read(string);
-
-        Mat process(int,int,Mat);
-        
+        std::string mode;
+        std::string filepath;
+       
         public:
-            Input_Reader(int w, int h, string f){
+            cv::Mat read(std::string);
+            cv::Mat process(int,int,cv::Mat);
+            Input_Reader(int w, int h, std::string m,std::string f){
                 width=w;
                 height=h;
                 filepath=f;
+                mode=m;
             }
     };
     class NV_rt{
@@ -34,7 +28,7 @@ namespace inference {
         public:
             void onnx2rt(const string& modelFile,
                          unsigned int  batch_size,
-                         IHostMemory*& trtModelStream);
+                         nvinfer1::IHostMemory*& trtModelStream);
 
             void doinference();
 

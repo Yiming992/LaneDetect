@@ -4,6 +4,9 @@
 #include "NvOnnxParser.h"
 
 using namespace inference;
+using namespace std; 
+using namespace cv;
+using namespace nvinfer1;
 
 static Logger gLogger;
 
