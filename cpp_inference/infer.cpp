@@ -1,7 +1,4 @@
 #include "infer.hpp"
-#include "common.h"
-#include "cuda_runtime_api.h"
-#include "NvOnnxParser.h"
 
 using namespace inference;
 using namespace std; 
@@ -18,24 +15,46 @@ Mat Input_Reader::read(string f){
 }
 
 Mat Input_Reader::process(int w,int h,Mat t){
-    Mat resized_img (w,h,3);
-    resize(t,resized_img,resized_img.size());
-    return resized_img;
+    if (Input_Reader::mode=="resize"){
+        Mat processed_img;
+        resize(t,processed_img,Size(w,h));
+        return processed_img;
+    }
+
+const vector<string> directories{"../onnx_model/test.onnx"};
+
+string NV_rt::locatefile(string input){
+    return locateFile(input, directories);
 }
 
-void NV_rt::onnx2rt(const string& modelFile,
-                    unsigned int batch_size,
-                    IHostMemory*& trtModelStream){
+void NV_RT::onnx2rt(string ModelFile, unsigned int BatchSize, IHostMemory* ModelStream){
+    int verbosity=(int) ILogger::Severity::KWARNING;
 
-                        int verbosity = (int) nvinfer1::ILogger::Severity::kWARNING;
-                        IBuilder* builder=createInferBuilder(gLogger);
-                        nvinfer1::INetworkDefinition* network=builder->createNetwork();
+    iBuilder* builder=createInferBuilder(gLogger);
+    INetworkDefinition* network=builder->createNetwork();
 
-                        auto parser = nvonnxparser::createParser(*network,gLogger);
+    auto parser=nvonnxparser::createParser(*network,glogger);
+
+    if (!parser->parseFromFile(locateFile(ModelFile,directories).c_str(),verbosity)){
+        string msg("Failed to parse Onnx file")
+        gLogger.log(nvinfer1::ILogger::Severity::kERROR,msg.c_str());
+        exit(EXIT_FAILURE)
+    }
+    builder->setMaxBatchSize(BatchSize);
+    builder->setMaxWorkspaceSize(1<<20);
+
+    samplesCommon::enableDLA(builder,gUseDLACore);
+    ICudaEngine* engine=builder->buildCudaEngine(*network);
+    assert(engine);
+
+    parser->destroy();
+
+    ModelStream=engine->serialize();
+    engine->destroy();
+    network->destroy();
+    builder->destroy();
 }
 
-void NV_rt::doinference(){
 
-}
 
 

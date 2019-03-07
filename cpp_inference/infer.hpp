@@ -2,8 +2,17 @@
 #define INFER_H
 
 #include <iostream>
+#include <vector>
 #include "opencv2/opencv.hpp"
 #include "Nvinfer.h"
+#include "mlpack/core.hpp"
+#include "mlpack/methods/mean_shift/mean_shift.hpp"
+#include "common.h"
+#include "cuda_runtime_api.h"
+#include "NvOnnxParser.h"
+#include <assert.h>
+#include <time.h>
+#include <sys/stat.h>
 
 namespace inference {
 
@@ -26,19 +35,18 @@ namespace inference {
     class NV_rt{
 
         public:
-            void onnx2rt(const string& modelFile,
-                         unsigned int  batch_size,
-                         nvinfer1::IHostMemory*& trtModelStream);
+            std::string locatefile(std::string);
+
+            void onnx2rt(std::string,unsigned int,nvinfer1::IHostMemory*);
 
             void doinference();
 
     };
 
     class Clustering{
+        public:
+            struct cluster ();
 
     };
 }
-
-
-
 #endif
