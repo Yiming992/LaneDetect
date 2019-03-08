@@ -39,7 +39,7 @@ namespace inference {
 
             void onnx2rt(std::string,unsigned int,nvinfer1::IHostMemory*);
 
-            void doinference();
+            void doinference(IExecutionContext&,float*,float*,int);
 
     };
 

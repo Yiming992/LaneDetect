@@ -27,7 +27,7 @@ string NV_rt::locatefile(string input){
     return locateFile(input, directories);
 }
 
-void NV_RT::onnx2rt(string ModelFile, unsigned int BatchSize, IHostMemory* ModelStream){
+void NV_rt::onnx2rt(string ModelFile, unsigned int BatchSize, IHostMemory* ModelStream){
     int verbosity=(int) ILogger::Severity::KWARNING;
 
     iBuilder* builder=createInferBuilder(gLogger);
@@ -53,6 +53,14 @@ void NV_RT::onnx2rt(string ModelFile, unsigned int BatchSize, IHostMemory* Model
     engine->destroy();
     network->destroy();
     builder->destroy();
+}
+
+void NV_rt::doInference(IExecutionContext& context,float* input,float* output,int batchsize){
+
+    const ICudaEngine& engine=context.getEngine();
+
+    assert(engine.getNbBindings()==2);
+    void* buffers[2];
 }
 
 
