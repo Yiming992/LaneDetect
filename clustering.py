@@ -5,14 +5,14 @@ import cv2
 class lane_cluster():
 
     def __init__(self,bandwidth,image,embedding,binary_mask,mode='line',method='Meanshift'):
-        self.color=[np.array([255,0,0]),
-                    np.array([0,255,0]),
-                    np.array([0,0,255]),
-                    np.array([125,125,0]),
-                    np.array([0,125,125]),
-                    np.array([125,0,125]),
-                    np.array([50,100,50]),
-                    np.array([100,50,100])]
+        self.color=[np.array([255,0,0,180]),
+                    np.array([0,255,0,180]),
+                    np.array([0,0,255,180]),
+                    np.array([125,125,0,180]),
+                    np.array([0,125,125,180]),
+                    np.array([125,0,125,180]),
+                    np.array([50,100,50,180]),
+                    np.array([100,50,100,180])]
         
         self.image=image
         self.bandwidth=bandwidth
@@ -40,6 +40,7 @@ class lane_cluster():
     def _get_instance_masks(self):
         lane_area,lane_idx=self._get_lane_area()
         instance_mask=self.image
+        instance_mask=cv2.cvtColor(instance_mask,cv2.COLOR_RGB2BGRA)
 
         labels=self._cluster(lane_area)
         num_cluster=len(set(labels))
@@ -59,7 +60,7 @@ class lane_cluster():
             color_map=(int(self.color[index][0]),
                        int(self.color[index][1]),
                        int(self.color[index][2]))
-            cv2.polylines(instance_mask,coords,True,color_map,2)
+            cv2.polylines(instance_mask,coords,False,color_map,2)
         return instance_mask
    
     def __call__(self):

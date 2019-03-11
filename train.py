@@ -79,36 +79,30 @@ def train(model,data,epoch,batch,delta_v,
                                                           class_weight,delta_v,delta_d)                              
             log.write('Steps:{}, Loss:{}\n'.format(step,total_loss))
             log.flush()
-            #print('v:{},d:{},r:{}'.format(Variance,Distance,Reg))
             optimizer.zero_grad()
             total_loss.backward()
             clip_grad_value_(model.parameters(),clip_value=5.)
             optimizer.step()
             step+=1
             e=time.time()
-            print('step time:{}'.format(e-s))
-            #print(list(model.parameters())[0])
-            #print(list(model.parameters())[0].grad)        
+            print('step time:{}'.format(e-s))     
         torch.save(model.state_dict(),os.path.join('./logs/models','model_1_{}_{}.pkl'.format(start_time,e_p)))
     log.close()
             
 if __name__=='__main__':
     ap=argparse.ArgumentParser() 
  
-    ap.add_argument('-e','--epoch',default=100)#Epoch
-    ap.add_argument('-b','--batch',default=32)#Batch_size
-    ap.add_argument('-dv','--delta_v',default=.2)#delta_v
-    ap.add_argument('-dd','--delta_d',default=4)#delta_d
-    ap.add_argument('-l','--learning_rate',default=1e-4)#learning_rate
-    ap.add_argument('-o','--optimizer',default='Adam')#optimizer
-    ap.add_argument('-d','--device',default='GPU')#training device
-    ap.add_argument('-t','--test_ratio',default=.1)
+    ap.add_argument('-e','--epoch',default=50)
+    ap.add_argument('-b','--batch',default=8)
+    ap.add_argument('-dv','--delta_v',default=.5)
+    ap.add_argument('-dd','--delta_d',default=6)
+    ap.add_argument('-l','--learning_rate',default=1e-4)
+    ap.add_argument('-o','--optimizer',default='Adam')
+    ap.add_argument('-d','--device',default='GPU')
+    ap.add_argument('-t','--test_ratio',default=.01)
     ap.add_argument('-ct','--continue_train',default='No')
     ap.add_argument('-s','--save',default=None)
-    #ap.add_argument('-cl','--class_weight',default=.5)
-    #ap.add_argument()
-    #ap.add_argument()
-    
+   
     args=vars(ap.parse_args())
     train_indices,test_indices=split_dataset(args['test_ratio'])
     data=build_sampler(TusimpleData('./data',transform=Rescale((256,512))),args['batch'],1,train_indices,test_indices)    

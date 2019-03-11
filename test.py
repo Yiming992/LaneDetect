@@ -7,8 +7,8 @@ from clustering import lane_cluster
 import torch
 
 SAVE_PATH='./test_result'
-IMAGE_PATH='./train_set/clips/0313-1/180'
-MODEL_SAVE='./logs/models/model_1_1551237689_199.pkl'
+IMAGE_PATH='D:/LaneDetect/train_set/clips/0313-2/220'
+MODEL_SAVE='./logs/models/model_1_1552201021_49.pkl'
 
 if __name__=='__main__':
 
@@ -24,6 +24,7 @@ if __name__=='__main__':
         image=cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
         image=cv2.resize(image,(256,512))
         img=image
+
 
         image=image.transpose(2,0,1)
         image=image[np.newaxis,:,:,:]
@@ -43,20 +44,31 @@ if __name__=='__main__':
             os.mkdir('./test_result/binary')
         cv2.imwrite(os.path.join('./test_result/binary',i),binary_mask[1,:,:]*255)
 
-        threshold_mask=binary_mask[1,:,:]>.5
+        threshold_mask=binary_mask[1,:,:]>.9
         threshold_mask=threshold_mask.astype(np.float)
 
-        cluster=lane_cluster(None,img,embedding.squeeze().data.cpu().numpy(),threshold_mask,mode='point',method='Meanshift')
+        cluster=lane_cluster(3,img,embedding.squeeze().data.cpu().numpy(),threshold_mask,mode='point',method='Meanshift')
         instance_mask=cluster()
-
+        
         if not os.path.exists('./test_result/instance'):
             os.mkdir('./test_result/instance')
-        cv2.imwrite(os.path.join('./test_result/instance',i),instance_mask)
+        cv2.imwrite(os.path.join('./test_result/instance','.'.join([i.split('.')[0],'png'])),instance_mask)
 
+    
+    img=[]
+    files=os.listdir('./test_result/instance')
+    for i in files:
+        img.append(cv2.imread(os.path.join('./test_result/instance',i)))
 
+    height,width,layers=img[1].shape
 
+    video=cv2.VideoWriter('video.avi',-1,20,(width,height))
 
+    for j in range(len(files)):
+        video.write(img[j])
 
+    cv2.destroyAllWindows()
+    video.release()
         
 
 
