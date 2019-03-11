@@ -7,7 +7,7 @@ import torch
 
 TUSIMPLE_PATH='./train_set'
  
-##标注并结构化图森数据集
+##标注并清理图森数据集
 class CreateTusimpleData():
 
     def __init__(self,tusimple,line_width):

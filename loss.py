@@ -5,7 +5,6 @@ from collections import defaultdict
 import torch.nn as nn
 import cv2
 
-
 ###bounded inverse weights
 def bi_weight(data,batch):
     frequency=defaultdict(lambda:torch.tensor(0.))
@@ -108,3 +107,27 @@ def instance_loss(delta_v,delta_d,embeddings,labels):
     reg_loss=reg(embeddings,labels)
     total_loss=variance_loss+distance_loss+.001*reg_loss
     return total_loss,variance_loss,distance_loss,reg_loss
+
+class Losses:
+
+    def __init__(self):
+        pass
+
+    def _bi_weight(self):
+        pass
+
+    def segmentation_loss(self):
+        pass 
+
+    def instance_loss(self):
+        pass 
+
+    def _variance(self):
+        pass 
+    
+    def _distance(self):
+        pass 
+        
+    def _reg(self):
+        pass
+
