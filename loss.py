@@ -6,9 +6,9 @@ import torch.nn as nn
 import cv2
 
 '''
-
+二向语义分割函数
 '''
-###
+###计算class weights
 def bi_weight(data,batch):
     frequency=defaultdict(lambda:torch.tensor(0.))
     for i in range(batch):                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
@@ -20,7 +20,7 @@ def bi_weight(data,batch):
     class_weights['lane']=1./torch.log(1.02+frequency['lane']/(frequency['background']+frequency['lane']))
     return class_weights
 
-###语意分割损失函数
+###CrossEntropy损失函数
 def Segmentation_loss(predictions,label,class_weights):
     loss=nn.CrossEntropyLoss(weight=torch.tensor([class_weights['background'].item(),class_weights['lane'].item()]).cuda())
     label=label.type(torch.long)
@@ -28,10 +28,8 @@ def Segmentation_loss(predictions,label,class_weights):
     return loss	
 
 '''
-
+聚类损失函数
 '''
-####聚类损失函数
-
 def variance(delta_v,embeddings,labels):
     num_samples=labels.size(0)
     var_loss=torch.tensor(0.).cuda()
@@ -116,9 +114,9 @@ def instance_loss(delta_v,delta_d,embeddings,labels):
 class Losses:
 
     '''
-    Implement above losses in object oriented way
+    Implement above losses in a object oriented fashion
 
-    To be continued
+    To be completed in the future
     '''
 
     def __init__(self):
