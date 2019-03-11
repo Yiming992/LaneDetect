@@ -1,9 +1,11 @@
-####Inference阶段的聚类算法
 import numpy as np 
 from sklearn.cluster import MeanShift,DBSCAN,estimate_bandwidth
 import cv2
-class lane_cluster():
 
+class lane_cluster():
+    '''
+    聚类算法，根据LaneNet Embedding 模块的输出，进行聚类已实现对单个车道线的检测
+    '''
     def __init__(self,bandwidth,image,embedding,binary_mask,mode='line',method='Meanshift'):
         self.color=[np.array([255,0,0]),
                     np.array([0,255,0]),

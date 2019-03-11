@@ -1,20 +1,44 @@
-import json
-import numpy as np 
-import os
-from sklearn.model_selection import train_test_split
 import cv2
-import torch
+import json 
+import numpy as np
+import os 
 
-TUSIMPLE_PATH='./train_set'
+TUSIMPLE_PATH='./train_set'##数据集所在地址
+
+##类用于改变图像大小
+class Rescale():
+    def __init__(self,output_size,method='INTER_AREA'):
+        self.size=output_size
+    
+    def _clean_values(self,sample,target='binary'):
+        H,W=sample.shape
+        if target=='binary':
+            values=[0,255]
+            for h in range(H):
+                for w in range(W):
+                    if sample[h,w] not in values:
+                        sample[h,w]=0
+        else:
+            values=[255,205,155,105,55]
+            for h in range(H):
+                for w in range(W):
+                    if sample[h,w] not in values:
+                        sample[h,w]=0
+        return sample
+
+    def __call__(self,sample,target='binary'):
+        sample=cv2.resize(sample,self.size,interpolation=cv2.INTER_AREA)
+        return self._clean_values(sample,target)
  
 ##标注并清理图森数据集
 class CreateTusimpleData():
 
-    def __init__(self,tusimple,line_width):
+    def __init__(self,tusimple,line_width,transform=Rescale((256,512))):
 
         self.tusimple=tusimple 
         self.line_width=line_width
-
+        self.transform=transform
+        
     def __call__(self):
         if not os.path.exists('./data/train_binary'):
             os.mkdir('./data/train_binary')
@@ -55,14 +79,18 @@ class CreateTusimpleData():
                                 queue.pop()
                 new_name='_'.join(clip.split('/')[1:])
                 new_name='.'.join([new_name.split('.')[0],'png'])
+
+                img_binary=self.transform(img_binary)
+                img_cluster=self.transform(img_cluster,target='instance')
   
                 cv2.imwrite(os.path.join('./data/train_binary',new_name),img_binary)
                 cv2.imwrite(os.path.join('./data/cluster',new_name),img_cluster)
       
 if __name__=='__main__':
 
-    creator=CreateTusimpleData(TUSIMPLE_PATH,5)
+    creator=CreateTusimpleData(TUSIMPLE_PATH,10)
     creator()
+
 
 
     

@@ -5,7 +5,10 @@ from collections import defaultdict
 import torch.nn as nn
 import cv2
 
-###bounded inverse weights
+'''
+
+'''
+###
 def bi_weight(data,batch):
     frequency=defaultdict(lambda:torch.tensor(0.))
     for i in range(batch):                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
@@ -23,11 +26,13 @@ def Segmentation_loss(predictions,label,class_weights):
     label=label.type(torch.long)
     loss=loss(predictions,label)
     return loss	
-    
+
+'''
+
+'''
 ####聚类损失函数
-##[255,205,155,105,55,5]
+
 def variance(delta_v,embeddings,labels):
-    #vals=[255,205,155,105,55]
     num_samples=labels.size(0)
     var_loss=torch.tensor(0.).cuda()
     for i in range(num_samples):
@@ -72,7 +77,7 @@ def distance(delta_d,embeddings,labels):
                 if index==idx:
                     continue
                 else:
-                    distance=torch.norm(clusters[index]-cluster)#torch.sqrt(torch.sum(torch.pow(clusters[index]-cluster,2)))
+                    distance=torch.norm(clusters[index]-cluster)
                     loss+=torch.pow(torch.clamp(delta_d-distance,min=0.),2)
         dis_loss+=loss/(num_clusters*(num_clusters-1))
     return dis_loss/num_samples
@@ -110,6 +115,12 @@ def instance_loss(delta_v,delta_d,embeddings,labels):
 
 class Losses:
 
+    '''
+    Implement above losses in object oriented way
+
+    To be continued
+    '''
+
     def __init__(self):
         pass
 
@@ -129,5 +140,8 @@ class Losses:
         pass 
         
     def _reg(self):
+        pass
+
+    def _get_means(self):
         pass
 

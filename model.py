@@ -322,10 +322,10 @@ class LinearBlock(nn.Module):
 
 
 class HNet(nn.Module):
-    '''
-    组合以上模块定义最终的HNet
-    '''
     def __init__(self):
+        '''
+        组合以上模块定义最终的HNet
+        '''
         super(HNet,self).__init__()
         self.conv=nn.Sequential(ConvBlock(3,16,3),
                                 ConvBlock(16,16,3),
