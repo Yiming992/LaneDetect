@@ -39,21 +39,18 @@ def variance(delta_v,embeddings,labels):
         sample_label=sample_label.view(sample_label.size(0)*sample_label.size(1))
         sample_embedding=sample_embedding.view(-1,sample_embedding.size(1)*sample_embedding.size(2))
         loss=torch.tensor(0.).cuda()
-        #print('variance {}'.format(num_clusters))
         for j in range(num_clusters):
             indices=(sample_label==vals[j]).nonzero()
             indices=indices.squeeze()
             cluster_elements=torch.index_select(sample_embedding,1,indices)
             Nc=cluster_elements.size(1)
             mean_cluster=cluster_elements.mean(dim=1,keepdim=True)
-            #print('v:{}'.format(mean_cluster))
-            distance=torch.norm(cluster_elements-mean_cluster)#torch.sqrt(torch.sum(torch.pow(cluster_elements-mean_cluster,2),dim=0))
+            distance=torch.norm(cluster_elements-mean_cluster)
             loss+=torch.pow((torch.clamp(distance-delta_v,min=0.)),2).sum()/Nc
         var_loss+=loss/num_clusters
     return var_loss/num_samples
 
 def distance(delta_d,embeddings,labels):
-    #vals=[255,205,155,105,55]
     num_samples=labels.size(0)
     dis_loss=torch.tensor(0.).cuda()
     for i in range(num_samples):
@@ -82,7 +79,6 @@ def distance(delta_d,embeddings,labels):
     return dis_loss/num_samples
 
 def reg(embeddings,labels):
-    #vals=[255,205,155,105,55]
     num_samples=labels.size(0)
     reg_loss=torch.tensor(0.).cuda()
     for i in range(num_samples):
@@ -93,7 +89,6 @@ def reg(embeddings,labels):
         sample_label=sample_label.view(sample_label.size(0)*sample_label.size(1))
         sample_embedding=sample_embedding.view(-1,sample_embedding.size(1)*sample_embedding.size(2))
         loss=torch.tensor(0.).cuda()
-        #print('reg {}'.format(num_clusters))
         for j in range(num_clusters):
             indices=(sample_label==vals[j]).nonzero()
             indices=indices.squeeze()
