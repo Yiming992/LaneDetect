@@ -8,7 +8,7 @@ import torch
 
 SAVE_PATH='./test_result'
 IMAGE_PATH='./train_set/clips/0313-1/180'
-MODEL_SAVE='./logs/models/model_1_1551237689_199.pkl'
+MODEL_SAVE='./logs/models/model_1_1552383528_12.pkl'
 
 if __name__=='__main__':
 
@@ -43,15 +43,15 @@ if __name__=='__main__':
             os.mkdir('./test_result/binary')
         cv2.imwrite(os.path.join('./test_result/binary',i),binary_mask[1,:,:]*255)
 
-        threshold_mask=binary_mask[1,:,:]>.6
+        threshold_mask=binary_mask[1,:,:]>.9
         threshold_mask=threshold_mask.astype(np.float)
 
-        cluster=lane_cluster(None,img,embedding.squeeze().data.cpu().numpy(),threshold_mask,mode='point',method='Meanshift')
+        cluster=lane_cluster(1,img,embedding.squeeze().data.cpu().numpy(),threshold_mask,mode='point',method='Meanshift')
         instance_mask=cluster()
 
         if not os.path.exists('./test_result/instance'):
             os.mkdir('./test_result/instance')
-        cv2.imwrite(os.path.join('./test_result/instance',i),instance_mask)
+        cv2.imwrite(os.path.join('./test_result/instance','.'.join([i.split('.')[0],'png'])),instance_mask)
 
 
 

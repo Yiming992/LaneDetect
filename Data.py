@@ -7,10 +7,10 @@ import numpy as np
 
 ##根据已有数据创建Pytorch Dataset
 class TusimpleData(Dataset):
-    def __init__(self,root_dir,transform=None):
+    def __init__(self,root_dir,rescale=(256,512)):
         super(TusimpleData,self).__init__()
         self.root_dir=root_dir
-        self.transform=transform
+        self.rescale=rescale
         file_names=os.listdir(os.path.join(self.root_dir,'LaneImages'))
         name_map={}
         for idx,file_name in enumerate(file_names):
@@ -26,11 +26,9 @@ class TusimpleData(Dataset):
         instance_label=cv2.imread(os.path.join(self.root_dir,'cluster',self.name_map[index]+'.png'),cv2.IMREAD_UNCHANGED)
         lane_image=cv2.cvtColor(lane_image,cv2.COLOR_BGR2RGB)
 
-        if self.transform:
-            lane_image=self.transform(lane_image)
-            binary_label=self.transform(binary_label)
-            instance_label=self.transform(instance_label)
-        
+        if self.rescale:
+            lane_image=cv2.resize(lane_image,self.rescale,cv2.INTER_CUBIC)
+       
         binary_label=binary_label/255
         lane_image=np.transpose(lane_image,(2,0,1))
 
