@@ -5,7 +5,6 @@ from collections import defaultdict
 import torch.nn as nn
 import cv2
 
-
 ###反权重
 def bi_weight(data,batch):
     frequency=defaultdict(lambda:torch.tensor(0.))

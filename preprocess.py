@@ -82,7 +82,7 @@ class CreateTusimpleData():
                 img_binary=self.transform(img_binary)
                 img_binary=clean_values(img_binary)
                 img_cluster=self.transform(img_cluster)
-                img_cluster=clean_values(img_cluster)
+                img_cluster=clean_values(img_cluster,target='instance')
   
                 cv2.imwrite(os.path.join('./data/train_binary',new_name),img_binary)
                 cv2.imwrite(os.path.join('./data/cluster',new_name),img_cluster)

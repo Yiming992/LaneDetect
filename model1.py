@@ -197,7 +197,7 @@ class LaneNet(nn.Module):
     def __init__(self):
         super(LaneNet,self).__init__()
         self.net=nn.ModuleDict({'Shared_Encoder':SharedEncoder(),
-                                'Embedding':Embedding(5),
+                                'Embedding':Embedding(3),
                                 'Segmentation':Segmentation()})
         
     def forward(self,x):
