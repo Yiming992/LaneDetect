@@ -5,10 +5,12 @@ from model import LaneNet
 from torch.nn import DataParallel
 from clustering import lane_cluster
 import torch
+import ffmpeg
+import argparse  
 
 SAVE_PATH='./test_result'
 IMAGE_PATH='./train_set/clips/0313-1/180'
-MODEL_SAVE='./logs/models/model_1_1552383528_12.pkl'
+MODEL_SAVE='./logs/models/model_1_1552463854_68.pkl'
 
 if __name__=='__main__':
 
@@ -30,7 +32,7 @@ if __name__=='__main__':
         image=image/255
         image=torch.tensor(image,dtype=torch.float)
 
-        segmentation,embedding=model(image)
+        segmentation,embedding=model(image.cuda())
 
         binary_mask=segmentation.data.cpu().numpy()
         binary_mask=binary_mask.squeeze()
@@ -46,7 +48,7 @@ if __name__=='__main__':
         threshold_mask=binary_mask[1,:,:]>.9
         threshold_mask=threshold_mask.astype(np.float)
 
-        cluster=lane_cluster(1,img,embedding.squeeze().data.cpu().numpy(),threshold_mask,mode='point',method='Meanshift')
+        cluster=lane_cluster(0.9,img,embedding.squeeze().data.cpu().numpy(),threshold_mask,mode='point',method='Meanshift')
         instance_mask=cluster()
 
         if not os.path.exists('./test_result/instance'):

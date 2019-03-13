@@ -36,7 +36,7 @@ class lane_cluster():
         if self.method=='Meanshift':
             clustering=MeanShift(bandwidth=self.bandwidth,bin_seeding=True).fit(prediction)
         elif self.method=='DBSCAN':
-            clustering=DBSCAN().fit(prediction)
+            clustering=DBSCAN(eps=0.1,min_samples=100).fit(prediction)
         return clustering.labels_
 
     def _get_instance_masks(self):
