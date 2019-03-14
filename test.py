@@ -11,6 +11,9 @@ import argparse
 class Test:
     def __init__(self,input_dir,output_dir,model_path,
                  mode='parallel',image_size=(256,512),threshold=.9):
+        '''
+
+        '''
         self.input_dir=input_dir
         self.output_dir=output_dir 
         self.model_path=model_path
