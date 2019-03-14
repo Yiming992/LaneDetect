@@ -1,5 +1,5 @@
 import numpy as np 
-from sklearn.cluster import MeanShift,DBSCAN,estimate_bandwidth
+from sklearn.cluster import MeanShift,DBSCAN,estimate_bandwidth,mean_shift
 import cv2
 
 class lane_cluster():
@@ -34,10 +34,11 @@ class lane_cluster():
 
     def _cluster(self,prediction):
         if self.method=='Meanshift':
+            #_,labels=mean_shift(prediction,bandwidth=self.bandwidth)
             clustering=MeanShift(bandwidth=self.bandwidth,bin_seeding=True).fit(prediction)
         elif self.method=='DBSCAN':
             clustering=DBSCAN(eps=0.1,min_samples=100).fit(prediction)
-        return clustering.labels_
+        return clustering.labels_#labelsclustering.labels_
 
     def _get_instance_masks(self):
         lane_area,lane_idx=self._get_lane_area()
