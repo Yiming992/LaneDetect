@@ -98,6 +98,7 @@ class Train:
                 predictions,embeddings=self.model(input_data)
                 total_loss=self.loss(input_data,self.batch_size,predictions,
                                      seg_mask,embeddings,instance_mask,**self.loss_params)
+                total_loss=total_loss()
 
                 log.write('Steps:{}, Loss:{}\n'.format(step,total_loss))
                 log.flush()
@@ -107,7 +108,7 @@ class Train:
                 clip_grad_value_(model.parameters(),clip_value=5.)
                 optimizer.step()
                 step+=1
-                e=time.time
+                e=time.time()
                 print("step time:{}".format(e-s))
             torch.save(model.state_dict(),os.path.join('./logs/models','model_1__{}_{}.pkl'.format(start_time,e_p)))
         log.close()
@@ -127,7 +128,7 @@ class Train:
 if __name__=='__main__':
     ap=argparse.ArgumentParser() 
  
-    ap.add_argument('-e','--epoch',default=2)#Epoch
+    ap.add_argument('-e','--epoch',default=10)#Epoch
     ap.add_argument('-b','--batch',default=8)#Batch_size
     ap.add_argument('-dv','--delta_v',default=.5)#delta_v
     ap.add_argument('-dd','--delta_d',default=6)#delta_d
@@ -144,17 +145,17 @@ if __name__=='__main__':
     model=LaneNet()
     loss=Losses
     loss_parameters={'delta_v':args['delta_v'],'delta_d':args['delta_d'],'alpha':1,'beta':1,'gamma':.001}
-    optimizer_parameters={'amsgrad':True}
+    optimizer_parameters={'betas':(.9,.999),'eps':1e-8,'weight_decay':0,'amsgrad':True}
 
-    if args['continue_train']=='Yes':
+    if args['continue_train']=='yes':
         train=Train(model,data,args['epoch'],args['batch'],
-                    loss,loss_parameters,args['learning_rate'],optimizer_parameters
-                    optimizer=args['optimizer'],mode=args['device'],continue_train=True,
+                    loss,loss_parameters,optimizer_parameters,args['learning_rate'],
+                    optimizer=args['optimizer'],mode=args['mode'],continue_train=True,
                     save=args['save'])
         train()
     else:
         train=Train(model,data,args['epoch'],args['batch'],
-                    args['delta_v'],args['delta_d'],args['learning_rate'],
-                    optimizer=args['optimizer'],mode=args['device'])
+                    loss,loss_parameters,optimizer_parameters,args['learning_rate'],
+                    optimizer=args['optimizer'],mode=args['mode'])
         train()
     
