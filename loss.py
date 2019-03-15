@@ -6,7 +6,6 @@ import torch.nn as nn
 import cv2
 
 class Losses:
-
     '''
     Implement above losses in a object oriented fashion
     '''
@@ -88,7 +87,8 @@ class Losses:
                     if index==idx:
                         continue
                     else:
-                        d_loss+=torch.pow(torch.clamp(self.delta_d-torch.norm(clusters[index]-cluster),min=0.),2)
+                        distance=torch.norm(clusters[index]-cluster)#torch.sqrt(torch.sum(torch.pow(clusters[index]-cluster,2)))
+                        d_loss+=torch.pow(torch.clamp(self.delta_d-distance,min=0.),2)
             var_loss+=v_loss/num_clusters
             dis_loss+=d_loss/(num_clusters*(num_clusters-1))
             reg_loss+=r_loss/num_clusters

@@ -9,10 +9,18 @@ import ffmpeg
 import argparse 
 
 class Test:
-    def __init__(self,input_dir,output_dir,model_path,
+    def __init__(self,input_dir,output_dir,model_path,bandwidth,
                  mode='parallel',image_size=(256,512),threshold=.9):
         '''
-
+        实现对未见输入数据的车道线划分
+        变量：
+           input_dir:输入数据所在文件夹
+           output_dir:输出结果所在文件夹
+           model_path:模型定义文件地址
+           bandwidth:Meanshift 聚类所需参数
+           mode:模型训练时的模式
+           image_size:输入模型的图像尺寸
+           thrshold:二向判断的阈值
         '''
         self.input_dir=input_dir
         self.output_dir=output_dir 
@@ -20,6 +28,7 @@ class Test:
         self.mode=mode
         self.image_size=image_size
         self.threshold=threshold
+        self.bandwidth=bandwidth
     
     def _load_model(self):
         model=LaneNet()
@@ -61,11 +70,12 @@ class Test:
         img_files=os.listdir(self.input_dir)
         for i in img_files:
             embeddings,threshold_mask,img=self._frame_process(i,model)
-            cluster=lane_cluster(1.5,img,embeddings.squeeze().data.cpu().numpy(),
+            cluster=lane_cluster(self.bandwidth,img,embeddings.squeeze().data.cpu().numpy(),
                                  threshold_mask,mode='point',method='Meanshift')
             instance_mask=cluster()
             if not os.path.exists(os.path.join(self.output_dir,'instance/')):
                 os.mkdir(os.path.join(self.output_dir,'instance/'))
+            instance_mask=cv2.cvtColor(instance_mask,cv2.COLOR_RGB2BGR)
             cv2.imwrite(os.path.join(self.output_dir,'instance/','.'.join([i.split('.')[0],'png'])),instance_mask)
             
     def img2video(self):
@@ -81,16 +91,17 @@ if __name__=='__main__':
 
     args=argparse.ArgumentParser()
 
-    args.add_argument('-i','--input',default='./train_set/clips/0313-2/42960')
+    args.add_argument('-i','--input',default='D:/Bjoy/LaneDetect/train_set/clips/0531/1492628585982117150')
     args.add_argument('-o','--output',default='./test_result')
-    args.add_argument('-mp','--model',default='./logs/models/model_1_1552463854_299.pkl')
+    args.add_argument('-mp','--model',default='./logs/models/model_1_1552533346_100.pkl')
     args.add_argument('-m','--mode',default='parallel')
     args.add_argument('-s','--size',default=[256,512],type=int,nargs='+')
     args.add_argument('-t','--threshold',default=.9,type=float)
+    args.add_argument('-b','--bandwidth',default=.7)
     
     args=args.parse_args()
 
-    test=Test(args.input,args.output,args.model,mode=args.mode,image_size=tuple(args.size),threshold=args.threshold)
+    test=Test(args.input,args.output,args.model,args.bandwidth,mode=args.mode,image_size=tuple(args.size),threshold=args.threshold)
     test.img2img()
 
 

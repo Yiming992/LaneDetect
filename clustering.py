@@ -7,14 +7,14 @@ class lane_cluster():
     聚类算法，根据LaneNet Embedding 模块的输出，进行聚类已实现对单个车道线的检测
     '''
     def __init__(self,bandwidth,image,embedding,binary_mask,mode='line',method='Meanshift'):
-        self.color=[np.array([255,0,0,200]),
-                    np.array([0,255,0,200]),
-                    np.array([0,0,255,200]),
-                    np.array([125,125,0,200]),
-                    np.array([0,125,125,200]),
-                    np.array([125,0,125,200]),
-                    np.array([50,100,50,200]),
-                    np.array([100,50,100,200])]
+        self.color=[np.array([255,0,0]),
+                    np.array([0,255,0]),
+                    np.array([0,0,255]),
+                    np.array([125,125,0]),
+                    np.array([0,125,125]),
+                    np.array([125,0,125]),
+                    np.array([50,100,50]),
+                    np.array([100,50,100])]
         
         self.image=image
         self.bandwidth=bandwidth
@@ -42,8 +42,9 @@ class lane_cluster():
 
     def _get_instance_masks(self):
         lane_area,lane_idx=self._get_lane_area()
-        instance_mask=self.image
-        instance_mask=cv2.cvtColor(instance_mask,cv2.COLOR_RGB2BGRA)
+        image=self.image
+        mask=np.zeros_like(image)
+        #image=cv2.cvtColor(instance_mask,cv2.COLOR_RGB2BGRA)
 
         labels=self._cluster(lane_area)
         num_cluster=len(set(labels))
@@ -51,8 +52,9 @@ class lane_cluster():
 
         if not self.mode=='line':
             for index,label in enumerate(labels):
-                instance_mask[lane_idx[index][0],lane_idx[index][1],:]=self.color[label]
-            return instance_mask
+                mask[lane_idx[index][0],lane_idx[index][1],:]=self.color[label]
+            masked_image=cv2.addWeighted(image,1,mask,1,0)
+            return masked_image
 
         for index,label in enumerate(range(num_cluster)):
             pos=np.where(labels==label)
