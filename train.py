@@ -4,7 +4,6 @@ import torch
 from torch.utils.data import DataLoader,SubsetRandomSampler
 from Data import TusimpleData,Rescale
 from model1 import LaneNet
-from HNet import HNet
 from loss import Segmentation_loss,instance_loss,bi_weight
 import time
 import os
@@ -92,11 +91,11 @@ def train(model,data,epoch,batch,delta_v,
 if __name__=='__main__':
     ap=argparse.ArgumentParser() 
  
-    ap.add_argument('-e','--epoch',default=50)
+    ap.add_argument('-e','--epoch',default=300)
     ap.add_argument('-b','--batch',default=8)
     ap.add_argument('-dv','--delta_v',default=.5)
     ap.add_argument('-dd','--delta_d',default=6)
-    ap.add_argument('-l','--learning_rate',default=1e-4)
+    ap.add_argument('-l','--learning_rate',default=5e-4)
     ap.add_argument('-o','--optimizer',default='Adam')
     ap.add_argument('-d','--device',default='GPU')
     ap.add_argument('-t','--test_ratio',default=.01)
