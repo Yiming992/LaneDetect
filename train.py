@@ -93,7 +93,7 @@ if __name__=='__main__':
  
     ap.add_argument('-e','--epoch',default=300)
     ap.add_argument('-b','--batch',default=8)
-    ap.add_argument('-dv','--delta_v',default=.5)
+    ap.add_argument('-dv','--delta_v',default=.3)
     ap.add_argument('-dd','--delta_d',default=6)
     ap.add_argument('-l','--learning_rate',default=5e-4)
     ap.add_argument('-o','--optimizer',default='Adam')
