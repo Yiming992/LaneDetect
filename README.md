@@ -1,51 +1,51 @@
-# 车道线检测
+# Deep Learning Lane Detection
 
 ## Repo 结构：
 
     |
     |----README.md
     |
-    |----model.py: 包含所有深度学习网络
+    |----model.py: Network definition
     |
-    |----HNet.py: H网络用于车道线拟合
+    |----loss.py: implementation of discriminative loss
     |
-    |----loss.py: 各类损失函数
+    |----preprocess.py: create required dataset from uncompressed tusimple data
     |
-    |----preprocess.py: 包含数据预处理函数
+    |----train.py: model training pipline
     |
-    |----train.py:脚本用于模型训练
+    |----Data.py： pytorch dataset definition
     |
-    |----Data.py：包含Pytorch Dataset对象的定义
-    |
-    |----make_predictions.py:用于模型预测
-    |
-    |----clustering.py:包括各类聚类算法
+    |----clustering.py: posprocess procedures
     |
     |----logs/
-    |------|------models/:用于训练中模型及参数的保存
-    |------|------loggings/:保存训练日志
+    |------|------models/: save serialized model pickle files
+    |------|------loggings/: save trainig logs
     |
     |----data/
-    |------|------cluster/:包含用于聚类的ground-truth数据
-    |------|------train_binary/:包含用于车道线语意分割的ground-truth数据
-    |------|------LaneImages/:包含相机拍摄的原始RGB数据
+    |------|------cluster/: store instance segemntation ground-truth
+    |------|------train_binary/:store semantic-segmentation ground-truth
+    |------|------LaneImages/:store raw RGB images
+    |
+    |----test_result/
+    |------|-----fitted/:store test results with curve fitting 
+    |------|-----instance/:store instance segmentation test results
+    |
+    |----test_images/---store sample test images
 
-## 网络结构
-![image](./Images/LaneNet_Architecture.PNG)
+## Network architecture
+![image](./test_images/LaneNet_Architecture.PNG)
 
-## 样例
-Solarized dark             |  Solarized Ocean
-:-------------------------:|:-------------------------:
-![alt-text-1](./Images/Webp.net-gifmaker.gif) | ![alt-text-2](./Images/Webp.net-gifmaker_1.gif)
-
-## 项目细节及进度
-- [x] LaneNet 模型构建
-- [x] HNet 模型构建
-- [x] 测试数据集清洗和生成(Tusimple Dataset)
-- [x] 预测阶段聚类算法的实现
-- [x] 构建训练和评估pipeline
-- [ ] 模型训练，debug与调参
-- [ ] 加入TensorRT模型加速
-
-
+## Examples
+<img src="./test_images/000.jpg" width="200px"><img src="./test_result/fitted/000.png" width="200px"><img src="./test_result/instance/000.png" width="200px">
+<img src="./test_images/111.jpg" width="200px"><img src="./test_result/fitted/111.png" width="200px"><img src="./test_result/instance/111.png" width="200px">
+<img src="./test_images/222.jpg" width="200px"><img src="./test_result/fitted/222.png" width="200px"><img src="./test_result/instance/222.png" width="200px">
+<img src="./test_images/333.jpg" width="200px"><img src="./test_result/fitted/333.png" width="200px"><img src="./test_result/instance/333.png" width="200px">
+## Usage
+### predict on test images
+1. Download trained pytorch model pickled from [model](https://drive.google.com/open?id=1zfmPUWVWYhmbkI3g9lOUiG_li8iPiN12)
+2. run test.py to produce segmented images in test_result/fitted and test_result/instance folders
+### train on tusimple data
+1. Download tusimple dataset from [link](https://github.com/TuSimple/tusimple-benchmark/issues/3) and decompress
+2. run preprocess.py to create usable datasets
+3. run train.py to perform training
 
