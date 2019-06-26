@@ -37,8 +37,11 @@
 
 ## Examples
 <img src="./test_images/000.jpg" width="200px"><img src="./test_result/fitted/000.png" width="200px"><img src="./test_result/instance/000.png" width="200px">
+
 <img src="./test_images/111.jpg" width="200px"><img src="./test_result/fitted/111.png" width="200px"><img src="./test_result/instance/111.png" width="200px">
+
 <img src="./test_images/222.jpg" width="200px"><img src="./test_result/fitted/222.png" width="200px"><img src="./test_result/instance/222.png" width="200px">
+
 <img src="./test_images/333.jpg" width="200px"><img src="./test_result/fitted/333.png" width="200px"><img src="./test_result/instance/333.png" width="200px">
 ## Usage
 ### predict on test images
