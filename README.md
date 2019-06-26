@@ -1,6 +1,6 @@
 # Deep Learning Lane Detection
 
-## Repo 结构：
+## Layout：
 
     |
     |----README.md
